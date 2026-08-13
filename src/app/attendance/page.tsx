@@ -11,8 +11,7 @@ import {
   CheckCircle,
   AlertCircle,
 } from 'lucide-react';
-import { EmptyState } from '@/components/ui/EmptyState';
-import { Badge } from '@/components/ui/Badge';
+import { EmptyState, Badge } from '../../components/ui';
 
 export default function AttendancePage() {
   const [isWorking, setIsWorking] = useState(false);

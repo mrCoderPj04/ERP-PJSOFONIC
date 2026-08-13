@@ -16,7 +16,7 @@ import {
   Phone,
   Layers,
 } from 'lucide-react';
-import { EmptyState } from '@/components/ui/EmptyState';
+import { EmptyState } from '../../components/ui';
 import { useAuth } from '@/context/AuthContext';
 import { fetchEmsEmployees, EmsUser } from '@/lib/ems';
 import { getErpTasks, ErpTask } from '@/lib/erpStore';

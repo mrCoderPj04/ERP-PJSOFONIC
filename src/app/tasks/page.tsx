@@ -18,9 +18,7 @@ import {
 import { fetchEmsEmployees, EmsUser } from '@/lib/ems';
 import { getErpTasks, saveErpTask, submitWorkForTask, ErpTask } from '@/lib/erpStore';
 import { useAuth } from '@/context/AuthContext';
-import { EmptyState } from '@/components/ui/EmptyState';
-import { Modal } from '@/components/ui/Modal';
-import { Badge } from '@/components/ui/Badge';
+import { EmptyState, Modal, Badge } from '../../components/ui';
 
 export default function TasksPage() {
   const { user } = useAuth();

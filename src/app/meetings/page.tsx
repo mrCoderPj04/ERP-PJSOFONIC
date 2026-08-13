@@ -2,8 +2,7 @@
 
 import React, { useState } from 'react';
 import { Video, Plus, Calendar, Clock } from 'lucide-react';
-import { EmptyState } from '@/components/ui/EmptyState';
-import { Modal } from '@/components/ui/Modal';
+import { EmptyState, Modal } from '../../components/ui';
 
 export default function MeetingsPage() {
   const [meetings, setMeetings] = useState<any[]>([]); // Clean install empty state

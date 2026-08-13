@@ -2,8 +2,7 @@
 
 import React, { useState } from 'react';
 import { Building2, Plus, Mail, Phone, Globe, FolderKanban } from 'lucide-react';
-import { EmptyState } from '@/components/ui/EmptyState';
-import { Modal } from '@/components/ui/Modal';
+import { EmptyState, Modal } from '../../components/ui';
 
 export default function ClientsPage() {
   const [clients, setClients] = useState<any[]>([]); // Clean install empty state

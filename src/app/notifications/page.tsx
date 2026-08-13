@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Bell, Sparkles, CheckCircle2, AlertCircle, Info } from 'lucide-react';
-import { EmptyState } from '@/components/ui/EmptyState';
+import { EmptyState } from '../../components/ui';
 
 export default function NotificationsPage() {
   return (

@@ -2,8 +2,7 @@
 
 import React, { useState } from 'react';
 import { TrendingUp, Plus, DollarSign, Send, CheckCircle } from 'lucide-react';
-import { EmptyState } from '@/components/ui/EmptyState';
-import { Modal } from '@/components/ui/Modal';
+import { EmptyState, Modal } from '../../components/ui';
 
 export default function CrmPage() {
   const [leads, setLeads] = useState<any[]>([]); // Clean install empty state

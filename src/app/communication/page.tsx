@@ -10,7 +10,7 @@ import {
   ShieldCheck,
   CheckCircle2,
 } from 'lucide-react';
-import { EmptyState } from '@/components/ui/EmptyState';
+import { EmptyState } from '../../components/ui';
 import { fetchEmsEmployees, EmsUser } from '@/lib/ems';
 import { useAuth } from '@/context/AuthContext';
 import {

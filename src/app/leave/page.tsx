@@ -2,9 +2,7 @@
 
 import React, { useState } from 'react';
 import { CalendarDays, Plus, CheckCircle2, XCircle } from 'lucide-react';
-import { EmptyState } from '@/components/ui/EmptyState';
-import { Modal } from '@/components/ui/Modal';
-import { Badge } from '@/components/ui/Badge';
+import { EmptyState, Modal, Badge } from '../../components/ui';
 
 export default function LeavePage() {
   const [leaves, setLeaves] = useState<any[]>([]); // Clean install empty state

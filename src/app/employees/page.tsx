@@ -14,8 +14,7 @@ import {
   Crown,
 } from 'lucide-react';
 import { fetchEmsEmployees, EmsUser } from '@/lib/ems';
-import { EmptyState } from '@/components/ui/EmptyState';
-import { Badge } from '@/components/ui/Badge';
+import { EmptyState, Badge } from '../../components/ui';
 
 export default function EmployeesPage() {
   const [employees, setEmployees] = useState<EmsUser[]>([]);

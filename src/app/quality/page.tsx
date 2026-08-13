@@ -16,9 +16,7 @@ import {
 } from 'lucide-react';
 import { getErpTasks, verifyQualityTask, ErpTask } from '@/lib/erpStore';
 import { useAuth } from '@/context/AuthContext';
-import { EmptyState } from '@/components/ui/EmptyState';
-import { Badge } from '@/components/ui/Badge';
-import { Modal } from '@/components/ui/Modal';
+import { EmptyState, Badge, Modal } from '../../components/ui';
 
 export default function QualityPage() {
   const { user } = useAuth();
