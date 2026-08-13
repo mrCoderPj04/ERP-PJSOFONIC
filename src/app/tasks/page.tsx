@@ -15,9 +15,9 @@ import {
   AlertCircle,
   Layers,
 } from 'lucide-react';
-import { fetchEmsEmployees, EmsUser } from '@/lib/ems';
-import { getErpTasks, saveErpTask, submitWorkForTask, ErpTask } from '@/lib/erpStore';
-import { useAuth } from '@/context/AuthContext';
+import { fetchEmsEmployees, EmsUser } from '../../lib/ems';
+import { getErpTasks, saveErpTask, submitWorkForTask, ErpTask } from '../../lib/erpStore';
+import { useAuth } from '../../context/AuthContext';
 import { EmptyState, Modal, Badge } from '../../components/ui';
 
 export default function TasksPage() {

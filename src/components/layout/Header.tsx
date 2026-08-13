@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Search, Bell, Clock, User, LogOut, ShieldCheck, Sparkles } from 'lucide-react';
 import Link from 'next/link';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 import { useRouter } from 'next/navigation';
 
 interface HeaderProps {

@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useAuth } from '@/context/AuthContext';
-import { Sidebar } from '@/components/layout/Sidebar';
-import { Header } from '@/components/layout/Header';
+import { useAuth } from '../../context/AuthContext';
+import { Sidebar } from './Sidebar';
+import { Header } from './Header';
 import { usePathname, useRouter } from 'next/navigation';
 
 export function MainLayoutWrapper({ children }: { children: React.ReactNode }) {

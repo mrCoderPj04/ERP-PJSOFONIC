@@ -16,10 +16,11 @@ import {
   Phone,
   Layers,
 } from 'lucide-react';
+import { fetchCrmCustomerProjects, CrmCustomerProject } from '../../lib/crm';
 import { EmptyState } from '../../components/ui';
-import { useAuth } from '@/context/AuthContext';
-import { fetchEmsEmployees, EmsUser } from '@/lib/ems';
-import { getErpTasks, ErpTask } from '@/lib/erpStore';
+import { useAuth } from '../../context/AuthContext';
+import { fetchEmsEmployees, EmsUser } from '../../lib/ems';
+import { getErpTasks, ErpTask } from '../../lib/erpStore';
 
 export default function DashboardPage() {
   const { user } = useAuth();

@@ -16,10 +16,10 @@ import {
   RefreshCw,
   CheckCircle2,
 } from 'lucide-react';
-import { fetchCrmCustomerProjects, CrmCustomerProject } from '@/lib/crm';
-import { fetchEmsEmployees, EmsUser } from '@/lib/ems';
-import { saveErpTask, ErpTask } from '@/lib/erpStore';
-import { useAuth } from '@/context/AuthContext';
+import { fetchCrmCustomerProjects, CrmCustomerProject } from '../../lib/crm';
+import { fetchEmsEmployees, EmsUser } from '../../lib/ems';
+import { saveErpTask, ErpTask } from '../../lib/erpStore';
+import { useAuth } from '../../context/AuthContext';
 import { EmptyState, Modal, Badge } from '../../components/ui';
 
 export default function ProjectsPage() {

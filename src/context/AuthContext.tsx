@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { EmsUser } from '@/lib/ems';
+import { EmsUser } from '../lib/ems';
 
 interface AuthContextType {
   user: EmsUser | null;

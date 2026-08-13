@@ -4,8 +4,8 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import erpLogo from '../../../logo/Erp.png';
 import { ShieldAlert, KeyRound, Lock, ArrowRight, CheckCircle2 } from 'lucide-react';
-import { authenticateWithEms } from '@/lib/ems';
-import { useAuth } from '@/context/AuthContext';
+import { authenticateWithEms } from '../../lib/ems';
+import { useAuth } from '../../context/AuthContext';
 
 export default function LoginPage() {
   const router = useRouter();

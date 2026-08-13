@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Settings, ShieldCheck, Lock, Key, Users, Crown } from 'lucide-react';
-import { ModuleType, ActionType } from '@/lib/rbac';
+import { ModuleType, ActionType } from '../../lib/rbac';
 import { Badge } from '../../components/ui';
 
 export default function SettingsPage() {

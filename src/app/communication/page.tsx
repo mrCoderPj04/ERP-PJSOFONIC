@@ -11,14 +11,14 @@ import {
   CheckCircle2,
 } from 'lucide-react';
 import { EmptyState } from '../../components/ui';
-import { fetchEmsEmployees, EmsUser } from '@/lib/ems';
-import { useAuth } from '@/context/AuthContext';
+import { fetchEmsEmployees, EmsUser } from '../../lib/ems';
+import { useAuth } from '../../context/AuthContext';
 import {
   getFilteredMessages,
   sendChatMessage,
   subscribeToChatUpdates,
   ChatMessage,
-} from '@/lib/chatStore';
+} from '../../lib/chatStore';
 
 export default function CommunicationPage() {
   const { user } = useAuth();

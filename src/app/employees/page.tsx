@@ -13,7 +13,7 @@ import {
   RefreshCw,
   Crown,
 } from 'lucide-react';
-import { fetchEmsEmployees, EmsUser } from '@/lib/ems';
+import { fetchEmsEmployees, EmsUser } from '../../lib/ems';
 import { EmptyState, Badge } from '../../components/ui';
 
 export default function EmployeesPage() {

@@ -1,7 +1,7 @@
 import React from 'react';
 import './globals.css';
-import { AuthProvider } from '@/context/AuthContext';
-import { MainLayoutWrapper } from '@/components/layout/MainLayoutWrapper';
+import { AuthProvider } from '../context/AuthContext';
+import { MainLayoutWrapper } from '../components/layout/MainLayoutWrapper';
 
 export const metadata = {
   title: 'PJSOFONIC ERP',

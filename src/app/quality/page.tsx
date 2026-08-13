@@ -14,8 +14,8 @@ import {
   FileText,
   UserCheck,
 } from 'lucide-react';
-import { getErpTasks, verifyQualityTask, ErpTask } from '@/lib/erpStore';
-import { useAuth } from '@/context/AuthContext';
+import { getErpTasks, verifyQualityTask, ErpTask } from '../../lib/erpStore';
+import { useAuth } from '../../context/AuthContext';
 import { EmptyState, Badge, Modal } from '../../components/ui';
 
 export default function QualityPage() {
