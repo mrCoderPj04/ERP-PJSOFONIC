@@ -1,4 +1,5 @@
-export const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000/api';
+export const BACKEND_URL =
+  process.env.NEXT_PUBLIC_BACKEND_URL || 'https://pjsofonic-erp-backend.onrender.com/api';
 
 /**
  * Client-side API caller to communicate with dedicated Express Backend API Server
