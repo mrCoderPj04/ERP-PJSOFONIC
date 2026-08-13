@@ -1,6 +1,7 @@
 # 🏢 PJSOFONIC ERP — Next.js Frontend UI Client
 
-Connected Live Render Backend API: **`https://pjsofonic-erp-backend.onrender.com/api`**
+- **Live Render Frontend URL**: **`https://erp-pjsofonic.onrender.com/login`**
+- **Connected Live Render Backend API**: **`https://pjsofonic-erp-backend.onrender.com/api`**
 
 ---
 
