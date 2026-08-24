@@ -204,7 +204,7 @@ export async function fetchEmsEmployees(token?: string): Promise<EmsUser[]> {
 
   // 2. Fetch from Express Backend API (/api/employees)
   try {
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5001/api';
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://pjsofonic-erp-backend.onrender.com/api';
     const localRes = await fetch(`${backendUrl}/employees`).catch(() => null);
     if (localRes && localRes.ok) {
       const localData = await localRes.json();

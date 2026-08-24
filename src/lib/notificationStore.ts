@@ -66,7 +66,7 @@ export function addSystemNotification(
     } catch (e) {}
 
     // Background sync to backend API
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5002/api';
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://pjsofonic-erp-backend.onrender.com/api';
     fetch(`${backendUrl}/notifications`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

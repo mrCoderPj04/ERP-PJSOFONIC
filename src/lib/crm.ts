@@ -2,7 +2,7 @@ import { fetchSupabaseProjects, saveProjectToSupabase } from './supabase';
 import { safeString } from './safeString';
 
 export const CRM_API_BASE = process.env.NEXT_PUBLIC_CRM_API_BASE || 'https://pjsofonic-crm-backend.onrender.com';
-export const ERP_BACKEND_API_BASE = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5002/api';
+export const ERP_BACKEND_API_BASE = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://pjsofonic-erp-backend.onrender.com/api';
 
 export interface ProductionDeliverables {
   implementationPlan?: string;
@@ -108,7 +108,7 @@ function syncProjectUpdate(updatedList: CrmCustomerProject[], updatedItem?: CrmC
 
     if (updatedItem) {
       // Background sync to Express backend
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5002/api';
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://pjsofonic-erp-backend.onrender.com/api';
       fetch(`${backendUrl}/crm/projects`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -411,7 +411,7 @@ export async function fetchCrmCustomerProjects(): Promise<CrmCustomerProject[]> 
 
   // 2. Fetch live projects from Express Backend API
   try {
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5002/api';
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://pjsofonic-erp-backend.onrender.com/api';
     const expressRes = await fetch(`${backendUrl}/crm/projects`, { cache: 'no-store' });
     if (expressRes.ok) {
       const data = await expressRes.json();
