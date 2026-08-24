@@ -23,7 +23,25 @@ export interface ErpTask {
   createdAt: string;
 }
 
+export interface TimesheetTodo {
+  id: string;
+  userId: string;
+  userName: string;
+  employeeId: string;
+  department: string;
+  projectId?: string;
+  projectName: string;
+  taskTitle: string;
+  description?: string;
+  hours: number;
+  date: string;
+  completed: boolean;
+  completedAt?: string;
+  createdAt: string;
+}
+
 const STORAGE_KEY = 'pj_erp_tasks_store';
+const TIMESHEET_STORAGE_KEY = 'pj_erp_timesheets_store';
 
 export function getErpTasks(): ErpTask[] {
   if (typeof window === 'undefined') return [];
@@ -145,6 +163,108 @@ export function deleteErpTask(taskId: string): ErpTask[] {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
   } catch (e) {
     console.error('Failed to delete task', e);
+  }
+  return updated;
+}
+
+// ==========================================
+// TIMESHEET & TODO LIST STORE
+// ==========================================
+
+export function getTimesheetTodos(): TimesheetTodo[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    const data = localStorage.getItem(TIMESHEET_STORAGE_KEY);
+    if (!data) return [];
+    const parsed = JSON.parse(data);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.map((item: any) => ({
+      id: safeString(item.id || `ts-${Date.now()}`),
+      userId: safeString(item.userId || 'ems-user'),
+      userName: safeString(item.userName || 'Full Stack Engineer'),
+      employeeId: safeString(item.employeeId || 'EMS-001'),
+      department: safeString(item.department || 'Software Engineering'),
+      projectId: item.projectId ? safeString(item.projectId) : undefined,
+      projectName: safeString(item.projectName || 'Core ERP Platform'),
+      taskTitle: safeString(item.taskTitle || 'Milestone Task'),
+      description: item.description ? safeString(item.description) : undefined,
+      hours: Number(item.hours) || 1,
+      date: safeString(item.date || new Date().toLocaleDateString()),
+      completed: Boolean(item.completed),
+      completedAt: item.completedAt ? safeString(item.completedAt) : undefined,
+      createdAt: safeString(item.createdAt || new Date().toISOString()),
+    }));
+  } catch (e) {
+    console.error('Failed to parse timesheet todos from storage', e);
+    return [];
+  }
+}
+
+export function saveTimesheetTodo(entry: Partial<TimesheetTodo>): TimesheetTodo[] {
+  const existing = getTimesheetTodos();
+  const newEntry: TimesheetTodo = {
+    id: safeString(entry.id || `ts-${Date.now()}`),
+    userId: safeString(entry.userId || 'ems-user'),
+    userName: safeString(entry.userName || 'Full Stack Engineer'),
+    employeeId: safeString(entry.employeeId || 'EMS-001'),
+    department: safeString(entry.department || 'Software Engineering'),
+    projectId: entry.projectId ? safeString(entry.projectId) : undefined,
+    projectName: safeString(entry.projectName || 'ERP Platform'),
+    taskTitle: safeString(entry.taskTitle || 'Daily Engineering Task'),
+    description: entry.description ? safeString(entry.description) : undefined,
+    hours: Number(entry.hours) || 1,
+    date: safeString(entry.date || new Date().toLocaleDateString()),
+    completed: Boolean(entry.completed),
+    completedAt: entry.completed ? (entry.completedAt || new Date().toISOString()) : undefined,
+    createdAt: safeString(entry.createdAt || new Date().toISOString()),
+  };
+
+  const index = existing.findIndex((t) => t.id === newEntry.id);
+  let updated: TimesheetTodo[];
+  if (index >= 0) {
+    updated = [...existing];
+    updated[index] = newEntry;
+  } else {
+    updated = [newEntry, ...existing];
+  }
+
+  try {
+    localStorage.setItem(TIMESHEET_STORAGE_KEY, JSON.stringify(updated));
+  } catch (e) {
+    console.error('Failed to save timesheet todo', e);
+  }
+  return updated;
+}
+
+export function toggleTimesheetTodoStatus(todoId: string): TimesheetTodo[] {
+  const existing = getTimesheetTodos();
+  const updated = existing.map((t) => {
+    if (t.id === todoId) {
+      const nextCompleted = !t.completed;
+      return {
+        ...t,
+        completed: nextCompleted,
+        completedAt: nextCompleted ? new Date().toISOString() : undefined,
+      };
+    }
+    return t;
+  });
+
+  try {
+    localStorage.setItem(TIMESHEET_STORAGE_KEY, JSON.stringify(updated));
+  } catch (e) {
+    console.error('Failed to toggle timesheet status', e);
+  }
+  return updated;
+}
+
+export function deleteTimesheetTodo(todoId: string): TimesheetTodo[] {
+  const existing = getTimesheetTodos();
+  const updated = existing.filter((t) => t.id !== todoId);
+  try {
+    localStorage.setItem(TIMESHEET_STORAGE_KEY, JSON.stringify(updated));
+  } catch (e) {
+    console.error('Failed to delete timesheet todo', e);
   }
   return updated;
 }

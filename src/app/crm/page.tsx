@@ -21,6 +21,30 @@ export default function CrmPage() {
   const [requirements, setRequirements] = useState('');
   const [value, setValue] = useState('');
 
+  const checkIsTeamLeader = (emp: EmsUser): boolean => {
+    const d = (emp.designation || '').toUpperCase();
+    const dept = (emp.department || '').toUpperCase();
+    const r = (emp.role || '').toUpperCase();
+
+    return (
+      r === 'TEAM_LEAD' ||
+      r.includes('LEAD') ||
+      r.includes('TL') ||
+      r.includes('MANAGER') ||
+      d.includes('LEAD') ||
+      d.includes('LEADER') ||
+      d.includes('TL') ||
+      d.includes('MANAGER') ||
+      d.includes('HEAD') ||
+      dept.includes('LEAD') ||
+      dept.includes('LEADER') ||
+      dept.includes('TL') ||
+      dept.includes('TEAM LEAD') ||
+      dept.includes('TEAM LEADER') ||
+      dept.includes('MANAGEMENT')
+    );
+  };
+
   const loadData = async () => {
     setLoading(true);
     const [crmData, empData] = await Promise.all([
@@ -28,10 +52,10 @@ export default function CrmPage() {
       fetchEmsEmployees(),
     ]);
     setProjects(crmData);
-    const tls = empData.filter((e) => e.role === 'TEAM_LEAD' || e.designation.toLowerCase().includes('lead') || e.department.toLowerCase().includes('lead'));
+    const tls = empData.filter((e) => checkIsTeamLeader(e));
     setTeamLeaders(tls.length > 0 ? tls : empData);
-    if (empData.length > 0 && !targetTlId) {
-      setTargetTlId(empData[0].id);
+    if (tls.length > 0 && !targetTlId) {
+      setTargetTlId(tls[0].id);
     }
     setLoading(false);
   };

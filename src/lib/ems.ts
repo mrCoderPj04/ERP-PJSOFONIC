@@ -17,6 +17,7 @@ export interface EmsUser {
 
 /**
  * Authenticates user credentials directly against PJSOFONIC EMS Backend
+ * (https://erp-backend-1-02lc.onrender.com/api/auth/login)
  * and retrieves complete real-time profile details from EMS database.
  */
 export async function authenticateWithEms(employeeIdOrEmail: string, password: string) {
@@ -37,11 +38,13 @@ export async function authenticateWithEms(employeeIdOrEmail: string, password: s
     if (!res.ok || data.error) {
       return {
         success: false,
-        error: data.error || data.message || 'EMS Authentication failed. User not registered in EMS.',
+        error: data.error || data.message || 'Access Denied: Account not registered in EMS.',
       };
     }
 
-    // Flexible extraction supporting nested and flat responses
+    const token = data.token || data.accessToken || 'ems-live-token';
+
+    // Extract user profile from EMS response
     const rawUser =
       data.user ||
       data.employee ||
@@ -52,10 +55,12 @@ export async function authenticateWithEms(employeeIdOrEmail: string, password: s
       data.profile ||
       (data.employeeId || data.email || data.fullName || data.name || data.code ? data : {});
 
-    // Live query EMS employee directory to fetch complete registered profile details
+    // Query EMS /api/employees to enrich profile if possible
     let emsMatch: any = null;
     try {
-      const empRes = await fetch(`${EMS_API_BASE}/employees`);
+      const empRes = await fetch(`${EMS_API_BASE}/employees`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       if (empRes.ok) {
         const empData = await empRes.json();
         const list: any[] = Array.isArray(empData)
@@ -65,12 +70,35 @@ export async function authenticateWithEms(employeeIdOrEmail: string, password: s
         emsMatch = list.find((e) => {
           const eId = safeString(e.employeeId || e.code || e.id).toLowerCase();
           const eEmail = safeString(e.email).toLowerCase();
-          return eId === searchKey || eEmail === searchKey || (searchKey.length > 2 && eId.includes(searchKey));
+          return eId === searchKey || eEmail === searchKey || eId.includes(searchKey);
         });
+
+        // Save real-time fetched employees list into storage
+        if (list.length > 0 && typeof window !== 'undefined') {
+          const normalizedList = list.map((emp: any, idx: number) => {
+            const eId = safeString(emp.employeeId || emp.code || emp.id || `EMS-100${idx + 1}`);
+            const name = safeString(emp.fullName || emp.name || emp.username || `Employee ${eId}`);
+            const email = safeString(emp.email || `${eId.toLowerCase()}@pjsofonic.com`);
+            const dept = safeString(emp.department || emp.dept || 'Software Engineering');
+            const desig = safeString(emp.designation || emp.title || 'Software Engineer');
+
+            return {
+              id: safeString(emp.id || emp._id || `ems-${eId}`),
+              employeeId: eId,
+              fullName: name,
+              email: email,
+              phone: safeString(emp.phone || emp.contact || ''),
+              department: dept,
+              designation: desig,
+              role: determineErpRole(desig, emp.role, dept),
+              status: safeString(emp.status) === 'INACTIVE' ? 'INACTIVE' : 'ACTIVE',
+              avatarUrl: safeString(emp.avatarUrl || emp.profilePicture || ''),
+            };
+          });
+          localStorage.setItem('pj_ems_realtime_employees', JSON.stringify(normalizedList));
+        }
       }
-    } catch (e) {
-      console.warn('Could not query EMS employee list for extra details:', e);
-    }
+    } catch (e) {}
 
     const merged = emsMatch ? { ...emsMatch, ...rawUser } : rawUser;
 
@@ -95,31 +123,14 @@ export async function authenticateWithEms(employeeIdOrEmail: string, password: s
       avatarUrl: avatar,
     };
 
-    // 3. Synchronize with PJSOFONIC CRM Backend
-    try {
-      const crmPayload = isEmail
-        ? { email: employeeIdOrEmail, password }
-        : { login_id: employeeIdOrEmail.toUpperCase(), employeeId: employeeIdOrEmail.toUpperCase(), password };
-
-      const crmRes = await fetch('https://pjsofonic-crm-backend.onrender.com/api/v1/auth/ems-login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(crmPayload),
-      });
-
-      if (crmRes.ok) {
-        const crmData = await crmRes.json();
-        if (crmData.access_token && typeof window !== 'undefined') {
-          localStorage.setItem('pj_crm_token', crmData.access_token);
-        }
-      }
-    } catch (crmErr) {
-      console.warn('CRM Backend auth background sync notice:', crmErr);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('pj_ems_user', JSON.stringify(normalizedUser));
+      localStorage.setItem('pj_ems_token', token);
     }
 
     return {
       success: true,
-      token: data.token || data.accessToken || 'ems-live-token',
+      token,
       user: normalizedUser,
     };
   } catch (err: any) {
@@ -131,12 +142,19 @@ export async function authenticateWithEms(employeeIdOrEmail: string, password: s
 }
 
 /**
- * Fetches live registered employee list directly from EMS Backend
+ * Fetches all registered employees in real-time directly from EMS Backend API
+ * (https://erp-backend-1-02lc.onrender.com/api/employees)
  */
 export async function fetchEmsEmployees(token?: string): Promise<EmsUser[]> {
-  let fetchedList: any[] = [];
+  const employeeMap = new Map<string, EmsUser>();
+  let authToken = token;
+
+  if (!authToken && typeof window !== 'undefined') {
+    authToken = localStorage.getItem('pj_ems_token') || undefined;
+  }
+
+  // 1. Fetch live registered employees from EMS Backend API
   try {
-    const authToken = token || (typeof window !== 'undefined' ? localStorage.getItem('pj_ems_token') : null);
     const headers: Record<string, string> = { 'Content-Type': 'application/json' };
     if (authToken) {
       headers['Authorization'] = `Bearer ${authToken}`;
@@ -145,73 +163,110 @@ export async function fetchEmsEmployees(token?: string): Promise<EmsUser[]> {
     const res = await fetch(`${EMS_API_BASE}/employees`, { headers });
     if (res.ok) {
       const data = await res.json();
-      if (Array.isArray(data)) {
-        fetchedList = data;
-      } else if (Array.isArray(data.employees)) {
-        fetchedList = data.employees;
-      } else if (Array.isArray(data.data)) {
-        fetchedList = data.data;
-      } else if (Array.isArray(data.result)) {
-        fetchedList = data.result;
-      } else if (Array.isArray(data.users)) {
-        fetchedList = data.users;
-      } else if (Array.isArray(data.staff)) {
-        fetchedList = data.staff;
-      } else if (data.employeesByDepartment && typeof data.employeesByDepartment === 'object') {
-        fetchedList = Object.values(data.employeesByDepartment).flat();
-      }
-      // Try Express Backend API fallback
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://pjsofonic-erp-backend.onrender.com/api';
-      const localRes = await fetch(`${backendUrl}/employees`).catch(() => null);
-      if (localRes && localRes.ok) {
-        const localData = await localRes.json();
-        if (Array.isArray(localData.employees)) {
-          fetchedList = localData.employees;
+      const list: any[] = Array.isArray(data)
+        ? data
+        : Array.isArray(data.employees)
+        ? data.employees
+        : Array.isArray(data.data)
+        ? data.data
+        : Array.isArray(data.result)
+        ? data.result
+        : Array.isArray(data.users)
+        ? data.users
+        : [];
+
+      list.forEach((emp: any, idx: number) => {
+        const empId = safeString(emp.employeeId || emp.code || emp.id || `EMS-${idx + 1}`).toUpperCase();
+        const name = safeString(emp.fullName || emp.name || emp.username || `Employee ${empId}`);
+        const email = safeString(emp.email || `${empId.toLowerCase()}@pjsofonic.com`);
+        const dept = safeString(emp.department || emp.dept || 'Software Engineering');
+        const desig = safeString(emp.designation || emp.title || 'Software Engineer');
+
+        if (empId) {
+          employeeMap.set(empId, {
+            id: safeString(emp.id || emp._id || `ems-${empId}`),
+            employeeId: empId,
+            fullName: name,
+            email: email,
+            phone: safeString(emp.phone || emp.contact || ''),
+            department: dept,
+            designation: desig,
+            role: determineErpRole(desig, emp.role, dept),
+            status: safeString(emp.status) === 'INACTIVE' ? 'INACTIVE' : 'ACTIVE',
+            avatarUrl: safeString(emp.avatarUrl || emp.profilePicture || ''),
+          });
         }
-      }
+      });
     }
   } catch (err) {
-    console.error('EMS Employee fetch notice:', err);
+    console.warn('EMS backend API fetch notice:', err);
   }
 
-  // Restore current logged-in user from localStorage
-  let currentUser: EmsUser | null = null;
+  // 2. Fetch from Express Backend API (/api/employees)
   try {
-    const saved = typeof window !== 'undefined' ? localStorage.getItem('pj_ems_user') : null;
-    if (saved) {
-      currentUser = JSON.parse(saved);
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5001/api';
+    const localRes = await fetch(`${backendUrl}/employees`).catch(() => null);
+    if (localRes && localRes.ok) {
+      const localData = await localRes.json();
+      const list: any[] = Array.isArray(localData.employees) ? localData.employees : [];
+      list.forEach((emp: any, idx: number) => {
+        const empId = safeString(emp.employeeId || emp.code || `EMS-${idx + 1}`).toUpperCase();
+        if (empId && !employeeMap.has(empId)) {
+          employeeMap.set(empId, {
+            id: safeString(emp.id || `ems-${empId}`),
+            employeeId: empId,
+            fullName: safeString(emp.fullName || emp.name || `Employee ${empId}`),
+            email: safeString(emp.email || `${empId.toLowerCase()}@pjsofonic.com`),
+            phone: safeString(emp.phone || emp.contact || ''),
+            department: safeString(emp.department || emp.dept || 'Software Engineering'),
+            designation: safeString(emp.designation || emp.title || 'Software Engineer'),
+            role: determineErpRole(emp.designation, emp.role, emp.department),
+            status: safeString(emp.status) === 'INACTIVE' ? 'INACTIVE' : 'ACTIVE',
+            avatarUrl: safeString(emp.avatarUrl || ''),
+          });
+        }
+      });
     }
   } catch (e) {}
 
-  const normalized: EmsUser[] = fetchedList.map((emp: any, idx: number) => {
-    const empId = safeString(emp.employeeId || emp.code || `EMS-10${idx + 1}`);
-    const name = safeString(emp.fullName || emp.name || emp.username || `EMS Staff ${idx + 1}`);
-    const email = safeString(emp.email || `employee${idx + 1}@pjsofonic.com`);
-    const contact = safeString(emp.phone || emp.contact || emp.mobile || '');
-    const dept = safeString(emp.department || emp.dept || 'Software Engineering');
-    const desig = safeString(emp.designation || emp.title || 'Software Engineer');
-    const avatar = safeString(emp.avatarUrl || emp.profilePicture || emp.image || '');
+  // 3. Ingest cached real-time employees from storage if network was cold
+  if (typeof window !== 'undefined') {
+    try {
+      const cached = localStorage.getItem('pj_ems_realtime_employees');
+      if (cached) {
+        const parsed: EmsUser[] = JSON.parse(cached);
+        if (Array.isArray(parsed)) {
+          parsed.forEach((emp) => {
+            if (emp.employeeId && !employeeMap.has(emp.employeeId.toUpperCase())) {
+              employeeMap.set(emp.employeeId.toUpperCase(), emp);
+            }
+          });
+        }
+      }
+    } catch (e) {}
 
-    return {
-      id: safeString(emp.id || emp._id || `ems-${empId || idx}`),
-      employeeId: empId,
-      fullName: name,
-      email: email,
-      phone: contact,
-      department: dept,
-      designation: desig,
-      role: determineErpRole(desig, emp.role, dept),
-      status: safeString(emp.status) === 'INACTIVE' ? 'INACTIVE' : 'ACTIVE',
-      avatarUrl: avatar,
-    };
-  });
-
-  // Ensure logged-in verified EMS employee is present in list
-  if (currentUser && !normalized.some((e) => e.employeeId === currentUser?.employeeId || e.id === currentUser?.id)) {
-    normalized.unshift(currentUser);
+    // 4. Ensure current logged-in user is in directory
+    try {
+      const savedUser = localStorage.getItem('pj_ems_user');
+      if (savedUser) {
+        const current: EmsUser = JSON.parse(savedUser);
+        if (current && current.employeeId) {
+          employeeMap.set(current.employeeId.toUpperCase(), current);
+        }
+      }
+    } catch (e) {}
   }
 
-  return normalized;
+  const allEmployees = Array.from(employeeMap.values());
+
+  // Cache latest real-time employees
+  if (typeof window !== 'undefined' && allEmployees.length > 0) {
+    try {
+      localStorage.setItem('pj_ems_realtime_employees', JSON.stringify(allEmployees));
+    } catch (e) {}
+  }
+
+  return allEmployees;
 }
 
 export function determineErpRole(designation?: any, role?: any, department?: any): 'ADMIN' | 'TEAM_LEAD' | 'EMPLOYEE' | 'QA' | 'FINANCE' {
@@ -219,8 +274,8 @@ export function determineErpRole(designation?: any, role?: any, department?: any
   const r = safeString(role).toUpperCase();
   const dept = safeString(department).toUpperCase();
 
-  if (r === 'ADMIN' || d.includes('ADMIN') || d.includes('DIRECTOR')) return 'ADMIN';
-  if (d.includes('LEAD') || d.includes('MANAGER') || d.includes('TL') || r.includes('LEAD')) return 'TEAM_LEAD';
+  if (r === 'ADMIN' || d.includes('ADMIN') || d.includes('DIRECTOR') || dept.includes('ADMIN')) return 'ADMIN';
+  if (d.includes('LEAD') || d.includes('MANAGER') || d.includes('TL') || r.includes('LEAD') || r === 'TEAM_LEAD') return 'TEAM_LEAD';
   if (d.includes('QA') || d.includes('TEST') || d.includes('QUALITY') || dept.includes('QUALITY') || dept.includes('QA') || r === 'QA') return 'QA';
   if (d.includes('FINANCE') || d.includes('ACCOUNT') || dept.includes('FINANCE') || r === 'FINANCE') return 'FINANCE';
   return 'EMPLOYEE';
