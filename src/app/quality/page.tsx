@@ -21,6 +21,8 @@ import { fetchQmsTestingItems, syncWithQMS, QmsTestingPayload } from '../../lib/
 import { useAuth } from '../../context/AuthContext';
 import { EmptyState, Badge, Modal } from '../../components/ui';
 
+import { fetchCrmCustomerProjects } from '../../lib/crm';
+
 export default function QualityPage() {
   const { user } = useAuth();
   const [tasks, setTasks] = useState<ErpTask[]>([]);
@@ -32,12 +34,20 @@ export default function QualityPage() {
 
   const loadQualityQueue = async () => {
     setLoading(true);
-    const allTasks = getErpTasks();
-    const qItems = await fetchQmsTestingItems();
+    const [crmProjects, allTasks, qItems] = await Promise.all([
+      fetchCrmCustomerProjects(),
+      getErpTasks(),
+      fetchQmsTestingItems(),
+    ]);
 
-    const queue = allTasks.filter(
-      (t) => t.status === 'WORK_SUBMITTED' || t.status === 'QUALITY_APPROVED' || t.qualityStatus === 'IN PROCESS' || t.qualityStatus === 'DONE'
-    );
+    // STRICT CONDITION: Only projects marked 'Done' by the Team Leader route to Quality Testing!
+    const queue = allTasks.filter((t) => {
+      const isParentDone = crmProjects.some(
+        (p) => (p.id === t.projectId || p.projectCode === t.projectCode) && (p.status === 'Done' || p.status === 'COMPLETED')
+      );
+      const isExplicitQuality = t.id.startsWith('quality-task-');
+      return (isParentDone || isExplicitQuality) && (t.status === 'WORK_SUBMITTED' || t.status === 'QUALITY_APPROVED' || t.qualityStatus === 'IN PROCESS' || t.qualityStatus === 'DONE');
+    });
 
     setTasks(queue);
     setQmsItems(qItems);

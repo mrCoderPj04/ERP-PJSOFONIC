@@ -1,3 +1,5 @@
+import { safeString } from './safeString';
+
 export interface ErpTask {
   id: string;
   projectId?: string;
@@ -11,7 +13,7 @@ export interface ErpTask {
   assigneeEmail?: string;
   assigneeDept: string;
   priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
-  status: 'TODO' | 'IN_PROGRESS' | 'WORK_SUBMITTED' | 'QUALITY_APPROVED' | 'QUALITY_REJECTED';
+  status: 'TODO' | 'IN_PROGRESS' | 'working' | 'Done' | 'WORK_SUBMITTED' | 'QUALITY_APPROVED' | 'QUALITY_REJECTED';
   submittedWork?: string;
   submittedAt?: string;
   qualityStatus?: 'IN PROCESS' | 'DONE';
@@ -27,7 +29,31 @@ export function getErpTasks(): ErpTask[] {
   if (typeof window === 'undefined') return [];
   try {
     const data = localStorage.getItem(STORAGE_KEY);
-    return data ? JSON.parse(data) : [];
+    if (!data) return [];
+    const parsed = JSON.parse(data);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.map((t: any) => ({
+      id: safeString(t.id || `task-${Date.now()}`),
+      projectId: t.projectId ? safeString(t.projectId) : undefined,
+      projectCode: t.projectCode ? safeString(t.projectCode) : undefined,
+      projectName: safeString(t.projectName || 'CRM Technical Project'),
+      milestoneName: t.milestoneName ? safeString(t.milestoneName) : undefined,
+      title: safeString(t.title || 'Technical Milestone Task'),
+      description: t.description ? safeString(t.description) : undefined,
+      assigneeId: safeString(t.assigneeId || 'ems-assignee'),
+      assigneeName: safeString(t.assigneeName || 'Full Stack Engineer'),
+      assigneeEmail: t.assigneeEmail ? safeString(t.assigneeEmail) : undefined,
+      assigneeDept: safeString(t.assigneeDept || 'Software Engineering'),
+      priority: t.priority || 'HIGH',
+      status: t.status || 'IN_PROGRESS',
+      submittedWork: t.submittedWork ? safeString(t.submittedWork) : undefined,
+      submittedAt: t.submittedAt ? safeString(t.submittedAt) : undefined,
+      qualityStatus: t.qualityStatus,
+      qualityFeedback: t.qualityFeedback ? safeString(t.qualityFeedback) : undefined,
+      qualityVerifiedBy: t.qualityVerifiedBy ? safeString(t.qualityVerifiedBy) : undefined,
+      dueDate: safeString(t.dueDate || new Date().toISOString().split('T')[0]),
+      createdAt: safeString(t.createdAt || new Date().toISOString()),
+    }));
   } catch (e) {
     console.error('Failed to parse ERP tasks from storage', e);
     return [];
@@ -36,13 +62,24 @@ export function getErpTasks(): ErpTask[] {
 
 export function saveErpTask(task: ErpTask): ErpTask[] {
   const existing = getErpTasks();
-  const index = existing.findIndex((t) => t.id === task.id);
+  const sanitized: ErpTask = {
+    ...task,
+    id: safeString(task.id),
+    projectName: safeString(task.projectName),
+    title: safeString(task.title),
+    assigneeId: safeString(task.assigneeId),
+    assigneeName: safeString(task.assigneeName),
+    assigneeDept: safeString(task.assigneeDept),
+    dueDate: safeString(task.dueDate),
+    createdAt: safeString(task.createdAt || new Date().toISOString()),
+  };
+  const index = existing.findIndex((t) => t.id === sanitized.id);
   let updated: ErpTask[];
   if (index >= 0) {
     updated = [...existing];
-    updated[index] = task;
+    updated[index] = sanitized;
   } else {
-    updated = [task, ...existing];
+    updated = [sanitized, ...existing];
   }
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
@@ -59,9 +96,8 @@ export function submitWorkForTask(taskId: string, submissionText: string): ErpTa
       return {
         ...t,
         status: 'WORK_SUBMITTED' as const,
-        submittedWork: submissionText,
+        submittedWork: safeString(submissionText),
         submittedAt: new Date().toISOString(),
-        qualityStatus: 'IN PROCESS' as const,
       };
     }
     return t;
@@ -88,8 +124,8 @@ export function verifyQualityTask(
         ...t,
         qualityStatus: newQualityStatus,
         status: isDone ? ('QUALITY_APPROVED' as const) : ('WORK_SUBMITTED' as const),
-        qualityVerifiedBy: testerName,
-        qualityFeedback: feedback || t.qualityFeedback,
+        qualityVerifiedBy: safeString(testerName),
+        qualityFeedback: feedback ? safeString(feedback) : t.qualityFeedback,
       };
     }
     return t;

@@ -11,3 +11,15 @@ services:
         value: production
       - key: NEXT_PUBLIC_BACKEND_URL
         value: https://pjsofonic-erp-backend.onrender.com/api
+      - key: NEXT_PUBLIC_SUPABASE_URL
+        value: https://ffauweryjzpnskdaqcyp.supabase.co
+      - key: NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+        value: sb_publishable_bLkboY3aqcA-LRqg7VROgw_IjxTh84f
+      - key: NEXT_PUBLIC_EMS_API_BASE
+        value: https://erp-backend-1-02lc.onrender.com/api
+      - key: NEXT_PUBLIC_CRM_API_BASE
+        value: https://pjsofonic-crm-backend.onrender.com
+      - key: NEXT_PUBLIC_PROJECTOS_API_BASE
+        value: https://sofo-projectos.onrender.com
+      - key: NEXT_PUBLIC_QMS_API_BASE
+        value: https://pjsofonic-qms.onrender.com

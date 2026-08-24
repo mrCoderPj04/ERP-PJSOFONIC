@@ -330,126 +330,173 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* CRM ACTIVE PROJECTS SECTION */}
-          <div className="p-6 rounded-2xl bg-gray-900/60 border border-gray-800 backdrop-blur-md space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-800 pb-4">
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="px-2.5 py-0.5 rounded bg-amber-500/10 text-amber-400 text-[10px] font-bold uppercase tracking-wider">
-                    Team Leader Direct Profile Fetch
-                  </span>
+          {/* FULL STACK / ENGINEERING TASKS SECTION - VISIBLE FOR REGULAR EMPLOYEES */}
+          {!isAdmin && !isTeamLeader && (
+            <div className="p-6 rounded-2xl bg-gray-900/60 border border-gray-800 backdrop-blur-md space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-800 pb-4">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="px-2.5 py-0.5 rounded bg-indigo-500/10 text-indigo-400 text-[10px] font-bold uppercase tracking-wider">
+                      Engineering Task Workbench
+                    </span>
+                  </div>
+                  <h3 className="text-lg font-extrabold text-white tracking-tight flex items-center gap-2 mt-1">
+                    <FolderKanban className="w-5 h-5 text-indigo-400" /> My Assigned Technical Tasks
+                  </h3>
+                  <p className="text-xs text-gray-400 mt-0.5">
+                    Tasks delegated to you by Department Team Leaders. Complete development and submit work for Team Leader verification.
+                  </p>
                 </div>
-                <h3 className="text-lg font-extrabold text-white tracking-tight flex items-center gap-2 mt-1">
-                  <TrendingUp className="w-5 h-5 text-indigo-400" /> CRM Active Projects
-                </h3>
-                <p className="text-xs text-gray-400 mt-0.5">
-                  Direct live customer projects fetched from CRM for your Team Leader department profile.
-                </p>
-              </div>
 
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setIsModalOpen(true)}
-                  className="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-lg flex items-center gap-1.5 shrink-0"
+                <a
+                  href="/tasks"
+                  className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-lg flex items-center gap-1.5 shrink-0"
                 >
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>Add Active Project</span>
-                </button>
-                <button
-                  onClick={loadCrmActiveProjects}
-                  disabled={loadingCrm}
-                  className="px-3 py-2 rounded-xl bg-gray-800 hover:bg-gray-700 text-white font-bold text-xs border border-gray-700 transition-all flex items-center justify-center gap-1 shrink-0"
-                >
-                  <RefreshCw className={`w-3.5 h-3.5 ${loadingCrm ? 'animate-spin' : ''}`} />
-                  <span>Fetch</span>
-                </button>
+                  <span>View My Tasks Workbench</span>
+                  <ArrowUpRight className="w-3.5 h-3.5" />
+                </a>
               </div>
             </div>
+          )}
 
-            {!isTeamLeader ? (
-              <div className="p-6 rounded-xl bg-gray-950/80 border border-gray-800 text-center space-y-2">
-                <Crown className="w-8 h-8 text-gray-600 mx-auto" />
-                <h4 className="text-sm font-bold text-gray-300">Team Leader Profile Integration</h4>
-                <p className="text-xs text-gray-500 max-w-md mx-auto">
-                  CRM active project direct fetch is tailored for Department Team Leaders. Your profile department is logged as <strong className="text-indigo-400">{user.department} ({user.designation})</strong>.
-                </p>
-              </div>
-            ) : loadingCrm ? (
-              <div className="flex flex-col items-center justify-center py-10 text-center">
-                <div className="w-7 h-7 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin mb-2" />
-                <p className="text-xs text-gray-400 font-medium">Directly fetching active CRM projects for Team Leader...</p>
-              </div>
-            ) : crmProjects.length === 0 ? (
-              <EmptyState
-                icon={FolderKanban}
-                title="No Active CRM Projects Found"
-                description="Click 'Add Active Project' or create a project in CRM Hub to fetch active projects directly on your profile."
-                actionLabel="Create Active CRM Project"
-                onAction={() => setIsModalOpen(true)}
-              />
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {crmProjects.map((project) => (
-                  <div
-                    key={project.id}
-                    className="p-5 rounded-xl bg-gray-950/80 border border-gray-800 hover:border-indigo-500/50 transition-all flex flex-col justify-between space-y-3 group"
-                  >
-                    <div>
-                      <div className="flex items-center justify-between gap-2 mb-2">
-                        <span className="text-[10px] font-mono text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded border border-indigo-500/20 font-bold">
-                          {project.projectCode}
-                        </span>
-                        <Badge variant={project.status === 'TL_DECOMPOSED' ? 'success' : 'info'}>
-                          {project.status === 'TL_DECOMPOSED' ? 'TL DECOMPOSED' : 'DISPATCHED BY CRM ADMIN'}
-                        </Badge>
-                      </div>
-
-                      <h4 className="text-sm font-bold text-white group-hover:text-indigo-400 transition-colors">
-                        {project.projectName}
-                      </h4>
-                      <p className="text-xs text-gray-400 mt-1 flex items-center gap-1">
-                        <Building2 className="w-3.5 h-3.5 text-gray-500 shrink-0" /> {project.customerName}
-                      </p>
-
-                      <div className="mt-2.5 p-2.5 rounded-lg bg-gray-900/60 border border-gray-800/80 text-[11px] space-y-1">
-                        <div className="flex items-center justify-between text-gray-400">
-                          <span>Department Scope:</span>
-                          <span className="text-indigo-300 font-semibold">{project.departmentScope}</span>
-                        </div>
-                        {project.targetTeamLeadName && (
-                          <div className="flex items-center justify-between text-gray-400">
-                            <span>Assigned TL:</span>
-                            <span className="text-amber-400 font-semibold">{project.targetTeamLeadName}</span>
-                          </div>
-                        )}
-                        <div className="flex items-center justify-between text-gray-400">
-                          <span>Project Budget:</span>
-                          <span className="text-emerald-400 font-bold">${project.budget.toLocaleString()}</span>
-                        </div>
-                      </div>
-
-                      <p className="text-xs text-gray-400 mt-2 line-clamp-2 italic bg-gray-900/30 p-2 rounded">
-                        "{project.requirements}"
-                      </p>
-                    </div>
-
-                    <div className="pt-3 border-t border-gray-800/80 flex items-center justify-between text-xs">
-                      <span className="text-gray-500 text-[11px]">
-                        Created: {new Date(project.createdAt).toLocaleDateString()}
-                      </span>
-                      <a
-                        href="/projects"
-                        className="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-[11px] flex items-center gap-1 shadow transition-all"
-                      >
-                        <span>Breakdown & Assign</span>
-                        <ArrowUpRight className="w-3 h-3" />
-                      </a>
-                    </div>
+          {/* ACTIVE PROJECTS SECTION - ONLY VISIBLE FOR ADMIN PROFILE */}
+          {isAdmin && (
+            <div className="p-6 rounded-2xl bg-gray-900/60 border border-gray-800 backdrop-blur-md space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-800 pb-4">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="px-2.5 py-0.5 rounded bg-amber-500/10 text-amber-400 text-[10px] font-bold uppercase tracking-wider">
+                      Admin Project Delegation Control
+                    </span>
                   </div>
-                ))}
+                  <h3 className="text-lg font-extrabold text-white tracking-tight flex items-center gap-2 mt-1">
+                    <TrendingUp className="w-5 h-5 text-indigo-400" />
+                    active project
+                  </h3>
+                  <p className="text-xs text-gray-400 mt-0.5">
+                    Live CRM active projects pending assignment to department Team Leaders.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  {isAdmin && (
+                    <button
+                      onClick={() => setIsModalOpen(true)}
+                      className="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-lg flex items-center gap-1.5 shrink-0"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>Add Active Project</span>
+                    </button>
+                  )}
+                  <button
+                    onClick={loadCrmActiveProjects}
+                    disabled={loadingCrm}
+                    className="px-3 py-2 rounded-xl bg-gray-800 hover:bg-gray-700 text-white font-bold text-xs border border-gray-700 transition-all flex items-center justify-center gap-1 shrink-0"
+                  >
+                    <RefreshCw className={`w-3.5 h-3.5 ${loadingCrm ? 'animate-spin' : ''}`} />
+                    <span>Fetch</span>
+                  </button>
+                </div>
               </div>
-            )}
-          </div>
+
+              {loadingCrm ? (
+                <div className="flex flex-col items-center justify-center py-10 text-center">
+                  <div className="w-7 h-7 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin mb-2" />
+                  <p className="text-xs text-gray-400 font-medium">Fetching assigned CRM projects...</p>
+                </div>
+              ) : (() => {
+                const displayProjects = isAdmin
+                  ? crmProjects
+                  : crmProjects.filter(
+                      (p) =>
+                        p.targetTeamLeadId === user?.id ||
+                        p.targetTeamLeadId === user?.employeeId ||
+                        (!!user?.fullName && (p.targetTeamLeadName || '').toLowerCase().includes(user.fullName.toLowerCase()))
+                    );
+
+                return displayProjects.length === 0 ? (
+                  <EmptyState
+                    icon={FolderKanban}
+                    title={isAdmin ? "No Active CRM Projects Found" : "No Projects Assigned by Admin Yet"}
+                    description={
+                      isAdmin
+                        ? "Click 'Add Active Project' or sync from CRM to load projects for assignment."
+                        : "When Admin assigns a CRM project to you, it will automatically appear here on your Team Leader profile."
+                    }
+                    actionLabel={isAdmin ? "Create Active CRM Project" : undefined}
+                    onAction={isAdmin ? () => setIsModalOpen(true) : undefined}
+                  />
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {displayProjects.map((project) => (
+                      <div
+                        key={project.id}
+                        className="p-5 rounded-xl bg-gray-950/80 border border-gray-800 hover:border-indigo-500/50 transition-all flex flex-col justify-between space-y-3 group"
+                      >
+                        <div>
+                          <div className="flex items-center justify-between gap-2 mb-2">
+                            <span className="text-[10px] font-mono text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded border border-indigo-500/20 font-bold">
+                              {project.projectCode}
+                            </span>
+                            {project.targetTeamLeadName ? (
+                              <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[10px] font-bold flex items-center gap-1">
+                                <Crown className="w-3 h-3 text-amber-400" /> STATUS: ASSIGNED ({project.targetTeamLeadName})
+                              </span>
+                            ) : (
+                              <span className="px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 text-[10px] font-bold">
+                                STATUS: UNASSIGNED
+                              </span>
+                            )}
+                          </div>
+
+                          <h4 className="text-sm font-bold text-white group-hover:text-indigo-400 transition-colors">
+                            {project.projectName}
+                          </h4>
+                          <p className="text-xs text-gray-400 mt-1 flex items-center gap-1">
+                            <Building2 className="w-3.5 h-3.5 text-gray-500 shrink-0" /> {project.customerName}
+                          </p>
+
+                          <div className="mt-2.5 p-2.5 rounded-lg bg-gray-900/60 border border-gray-800/80 text-[11px] space-y-1">
+                            <div className="flex items-center justify-between text-gray-400">
+                              <span>Department Scope:</span>
+                              <span className="text-indigo-300 font-semibold">{project.departmentScope}</span>
+                            </div>
+                            {project.targetTeamLeadName && (
+                              <div className="flex items-center justify-between text-gray-400">
+                                <span>Assigned TL:</span>
+                                <span className="text-amber-400 font-semibold">{project.targetTeamLeadName}</span>
+                              </div>
+                            )}
+                            <div className="flex items-center justify-between text-gray-400">
+                              <span>Project Budget:</span>
+                              <span className="text-emerald-400 font-bold">${project.budget.toLocaleString()}</span>
+                            </div>
+                          </div>
+
+                          <p className="text-xs text-gray-400 mt-2 line-clamp-2 italic bg-gray-900/30 p-2 rounded">
+                            "{project.requirements}"
+                          </p>
+                        </div>
+
+                        <div className="pt-3 border-t border-gray-800/80 flex items-center justify-between text-xs">
+                          <span className="text-gray-500 text-[11px]">
+                            Created: {new Date(project.createdAt).toLocaleDateString()}
+                          </span>
+                          <a
+                            href="/projects"
+                            className="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-[11px] flex items-center gap-1 shadow transition-all"
+                          >
+                            <span>{isAdmin ? (project.targetTeamLeadName ? `Assign to Team Leader (${project.targetTeamLeadName})` : 'Assign to Team Leader') : 'Breakdown & Assign'}</span>
+                            <ArrowUpRight className="w-3 h-3" />
+                          </a>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                );
+              })()}
+            </div>
+          )}
         </div>
       </div>
 

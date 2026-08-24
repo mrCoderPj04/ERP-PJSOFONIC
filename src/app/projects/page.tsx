@@ -36,6 +36,8 @@ export default function ProjectsPage() {
   const [loading, setLoading] = useState(true);
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
   const [selectedProjectForDecompose, setSelectedProjectForDecompose] = useState<CrmCustomerProject | null>(null);
+  const [assigningProjectForTl, setAssigningProjectForTl] = useState<CrmCustomerProject | null>(null);
+  const [selectedTlIdForAssign, setSelectedTlIdForAssign] = useState<string>('');
 
   // Admin New Project Form State
   const [adminProjTitle, setAdminProjTitle] = useState('');
@@ -55,6 +57,37 @@ export default function ProjectsPage() {
 
   // Admin Role Check
   const isAdmin = user?.role === 'ADMIN' || (user?.designation || '').toLowerCase().includes('admin') || (user?.department || '').toLowerCase().includes('admin');
+
+  const handleAssignTeamLeader = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!assigningProjectForTl) return;
+    const selectedTl = emsEmployees.find((emp) => emp.id === selectedTlIdForAssign) || emsEmployees[0];
+    if (!selectedTl) return;
+
+    const updated = crmProjects.map((p) => {
+      if (p.id === assigningProjectForTl.id || p.projectCode === assigningProjectForTl.projectCode) {
+        return {
+          ...p,
+          targetTeamLeadId: selectedTl.id,
+          targetTeamLeadName: `${selectedTl.fullName} (${selectedTl.department})`,
+          departmentScope: selectedTl.department || p.departmentScope,
+        };
+      }
+      return p;
+    });
+
+    setCrmProjects(updated);
+    saveCrmProject({
+      ...assigningProjectForTl,
+      targetTeamLeadId: selectedTl.id,
+      targetTeamLeadName: `${selectedTl.fullName} (${selectedTl.department})`,
+      departmentScope: selectedTl.department || assigningProjectForTl.departmentScope,
+    });
+
+    setSuccessMessage(`Project "${assigningProjectForTl.projectName}" successfully assigned to Team Leader ${selectedTl.fullName}!`);
+    setTimeout(() => setSuccessMessage(null), 5000);
+    setAssigningProjectForTl(null);
+  };
 
   const loadLiveData = async () => {
     setLoading(true);
@@ -297,22 +330,44 @@ export default function ProjectsPage() {
       </div>
 
       {/* Projects Grid or Empty State */}
-      {loading ? (
-        <div className="flex flex-col items-center justify-center p-12 text-center rounded-2xl bg-gray-900/40 border border-gray-800">
-          <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin mb-3" />
-          <p className="text-xs text-gray-400 font-medium">Fetching customer projects for Team Leader dashboard...</p>
-        </div>
-      ) : crmProjects.length === 0 ? (
-        <EmptyState
-          icon={FolderKanban}
-          title="No Active Projects in Team Leader Dashboard"
-          description={isAdmin ? "Click 'Admin Create Project' above to create a project that dispatches directly to the Team Leader dashboard." : "Projects created by Admin will automatically fetch here in your Team Leader dashboard."}
-          actionLabel={isAdmin ? "Admin Create Project" : "Sync Projects"}
-          onAction={isAdmin ? () => setIsAdminModalOpen(true) : loadLiveData}
-        />
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {crmProjects.map((project) => (
+      {(() => {
+        const displayedProjects = isAdmin
+          ? crmProjects
+          : crmProjects.filter(
+              (p) =>
+                p.targetTeamLeadId === user?.id ||
+                p.targetTeamLeadId === user?.employeeId ||
+                (!!user?.fullName && (p.targetTeamLeadName || '').toLowerCase().includes(user.fullName.toLowerCase()))
+            );
+
+        if (loading) {
+          return (
+            <div className="flex flex-col items-center justify-center p-12 text-center rounded-2xl bg-gray-900/40 border border-gray-800">
+              <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin mb-3" />
+              <p className="text-xs text-gray-400 font-medium">Fetching customer projects for Team Leader dashboard...</p>
+            </div>
+          );
+        }
+
+        if (displayedProjects.length === 0) {
+          return (
+            <EmptyState
+              icon={FolderKanban}
+              title={isAdmin ? "No Active Projects in Dashboard" : "No Projects Assigned to You by Admin Yet"}
+              description={
+                isAdmin
+                  ? "Click 'Admin Create Project' above to create a project that dispatches directly to the Team Leader dashboard."
+                  : "When Admin assigns an approved CRM project to your profile, it will appear here for you to decompose and assign tasks to engineers."
+              }
+              actionLabel={isAdmin ? "Admin Create Project" : "Sync Projects"}
+              onAction={isAdmin ? () => setIsAdminModalOpen(true) : loadLiveData}
+            />
+          );
+        }
+
+        return (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {displayedProjects.map((project) => (
             <div
               key={project.id}
               className="p-6 rounded-2xl bg-gray-900/60 border border-gray-800/80 hover:border-indigo-500/40 transition-all duration-300 backdrop-blur-md flex flex-col justify-between group space-y-4"
@@ -322,8 +377,8 @@ export default function ProjectsPage() {
                   <span className="text-[11px] font-mono text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded border border-indigo-500/20 font-bold">
                     {project.projectCode}
                   </span>
-                  <Badge variant={project.status === 'Done' ? 'success' : project.status === 'working' ? 'warning' : 'info'}>
-                    {project.status === 'Done' ? 'DONE (IN QA TESTING)' : project.status === 'working' ? 'WORKING (IN PROGRESS)' : 'ADMIN ACTIVE'}
+                  <Badge variant={project.targetTeamLeadName ? 'success' : 'warning'}>
+                    {project.targetTeamLeadName ? `STATUS: ASSIGNED (${project.targetTeamLeadName})` : 'STATUS: UNASSIGNED'}
                   </Badge>
                 </div>
 
@@ -334,21 +389,31 @@ export default function ProjectsPage() {
                   <Building2 className="w-3.5 h-3.5 text-gray-500" /> Client: {project.customerName}
                 </p>
 
-                <div className="mt-3 p-3 rounded-xl bg-gray-950/80 border border-gray-800 text-xs space-y-1">
+                <div className="mt-3 p-3 rounded-xl bg-gray-950/80 border border-gray-800 text-xs space-y-2">
                   <div className="flex justify-between text-gray-400">
                     <span>Department Scope:</span>
                     <span className="font-bold text-indigo-400">{project.departmentScope}</span>
                   </div>
-                  {project.targetTeamLeadName && (
-                    <div className="flex justify-between text-gray-400">
-                      <span>Team Leader:</span>
+                  <div className="flex justify-between items-center text-gray-400">
+                    <span>Team Leader:</span>
+                    {project.targetTeamLeadName ? (
                       <span className="font-bold text-amber-400">{project.targetTeamLeadName}</span>
-                    </div>
-                  )}
+                    ) : (
+                      <span className="text-gray-500 italic text-[11px]">Unassigned</span>
+                    )}
+                  </div>
                   <div className="flex justify-between text-gray-400">
                     <span>Budget ($):</span>
                     <span className="font-bold text-emerald-400">${project.budget.toLocaleString()}</span>
                   </div>
+
+                  {user && (project.targetTeamLeadId === user.id || project.targetTeamLeadId === user.employeeId || (!!user.fullName && (project.targetTeamLeadName || '').toLowerCase().includes(user.fullName.toLowerCase()))) && (
+                    <div className="pt-2 border-t border-gray-800/80">
+                      <span className="px-2.5 py-1 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[11px] font-bold flex items-center gap-1">
+                        <Crown className="w-3.5 h-3.5 text-amber-400" /> Assigned to You by Admin
+                      </span>
+                    </div>
+                  )}
                 </div>
 
                 {/* Status Switcher Control for Team Leader */}
@@ -386,10 +451,23 @@ export default function ProjectsPage() {
                 </div>
               </div>
 
-              <div className="pt-3 border-t border-gray-800/80 flex items-center justify-between text-xs">
-                <span className="text-gray-500 text-[11px]">
-                  ProjectOS & QMS Synced
-                </span>
+              <div className="pt-3 border-t border-gray-800/80 flex items-center justify-between text-xs gap-2">
+                {isAdmin ? (
+                  <button
+                    onClick={() => {
+                      setAssigningProjectForTl(project);
+                      setSelectedTlIdForAssign(project.targetTeamLeadId || emsEmployees[0]?.id || '');
+                    }}
+                    className="px-3 py-1.5 rounded-xl bg-gray-800 hover:bg-gray-700 text-indigo-400 hover:text-white text-xs font-bold border border-gray-700 transition-all flex items-center gap-1"
+                  >
+                    <Users className="w-3.5 h-3.5" />
+                    <span>{project.targetTeamLeadName ? `Assign to Team Leader (${project.targetTeamLeadName})` : 'Assign to Team Leader'}</span>
+                  </button>
+                ) : (
+                  <span className="text-gray-500 text-[11px]">
+                    ProjectOS Synced
+                  </span>
+                )}
 
                 <button
                   onClick={() => setSelectedProjectForDecompose(project)}
@@ -402,7 +480,55 @@ export default function ProjectsPage() {
             </div>
           ))}
         </div>
-      )}
+        );
+      })()}
+
+      {/* Admin Assign Team Leader Modal */}
+      <Modal
+        isOpen={!!assigningProjectForTl}
+        onClose={() => setAssigningProjectForTl(null)}
+        title="Admin - Assign CRM Project to Team Leader"
+      >
+        <form onSubmit={handleAssignTeamLeader} className="space-y-4">
+          <div className="p-3.5 rounded-xl bg-gray-950 border border-gray-800 text-xs space-y-1">
+            <p className="text-gray-400">Project Code: <strong className="text-indigo-400">{assigningProjectForTl?.projectCode}</strong></p>
+            <p className="text-gray-400">Project Name: <strong className="text-white">{assigningProjectForTl?.projectName}</strong></p>
+            <p className="text-gray-400">Client: <strong className="text-gray-300">{assigningProjectForTl?.customerName}</strong></p>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-gray-300 uppercase mb-1">Select Department Team Leader *</label>
+            <select
+              value={selectedTlIdForAssign}
+              onChange={(e) => setSelectedTlIdForAssign(e.target.value)}
+              className="w-full px-4 py-2.5 rounded-xl bg-gray-950 border border-gray-800 text-sm text-white focus:outline-none focus:border-indigo-500"
+            >
+              {emsEmployees.map((emp) => (
+                <option key={emp.id} value={emp.id}>
+                  [{emp.employeeId}] {emp.fullName} - {emp.department} ({emp.designation})
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="pt-4 flex justify-end gap-3 border-t border-gray-800">
+            <button
+              type="button"
+              onClick={() => setAssigningProjectForTl(null)}
+              className="px-4 py-2 rounded-xl bg-gray-800 text-xs font-semibold text-gray-300"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-lg flex items-center gap-1.5"
+            >
+              <Crown className="w-3.5 h-3.5 text-amber-400" />
+              <span>Assign & Dispatch to TL Dashboard</span>
+            </button>
+          </div>
+        </form>
+      </Modal>
 
       {/* Admin Create Project Modal */}
       <Modal isOpen={isAdminModalOpen} onClose={() => setIsAdminModalOpen(false)} title="Admin - Create New Project (Direct Dispatch to Team Leader)">

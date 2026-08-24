@@ -1,3 +1,5 @@
+import { safeString } from './safeString';
+
 export const EMS_API_BASE = 'https://erp-backend-1-02lc.onrender.com/api';
 
 export interface EmsUser {
@@ -61,8 +63,8 @@ export async function authenticateWithEms(employeeIdOrEmail: string, password: s
           : empData.employees || empData.data || empData.result || [];
         const searchKey = employeeIdOrEmail.toLowerCase().trim();
         emsMatch = list.find((e) => {
-          const eId = (e.employeeId || e.code || e.id || '').toString().toLowerCase();
-          const eEmail = (e.email || '').toString().toLowerCase();
+          const eId = safeString(e.employeeId || e.code || e.id).toLowerCase();
+          const eEmail = safeString(e.email).toLowerCase();
           return eId === searchKey || eEmail === searchKey || (searchKey.length > 2 && eId.includes(searchKey));
         });
       }
@@ -72,26 +74,48 @@ export async function authenticateWithEms(employeeIdOrEmail: string, password: s
 
     const merged = emsMatch ? { ...emsMatch, ...rawUser } : rawUser;
 
-    const empId = merged.employeeId || merged.code || rawUser.employeeId || (isEmail ? 'EMS-001' : employeeIdOrEmail.toUpperCase());
-    const email = merged.email || rawUser.email || (isEmail ? employeeIdOrEmail : `${employeeIdOrEmail.toLowerCase()}@pjsofonic.com`);
-    const name = merged.fullName || merged.name || merged.username || rawUser.fullName || rawUser.name || (isEmail ? employeeIdOrEmail.split('@')[0] : `Employee ${empId}`);
-    const dept = merged.department || merged.dept || rawUser.department || 'Software Engineering';
-    const desig = merged.designation || merged.title || rawUser.designation || 'Software Engineer';
-    const contact = merged.phone || merged.contact || merged.mobile || rawUser.phone || '';
-    const avatar = merged.avatarUrl || merged.profilePicture || merged.image || rawUser.avatarUrl || '';
+    const empId = safeString(merged.employeeId || merged.code || rawUser.employeeId || (isEmail ? 'EMS-001' : employeeIdOrEmail.toUpperCase()));
+    const email = safeString(merged.email || rawUser.email || (isEmail ? employeeIdOrEmail : `${employeeIdOrEmail.toLowerCase()}@pjsofonic.com`));
+    const name = safeString(merged.fullName || merged.name || merged.username || rawUser.fullName || rawUser.name || (isEmail ? employeeIdOrEmail.split('@')[0] : `Employee ${empId}`));
+    const dept = safeString(merged.department || merged.dept || rawUser.department || 'Software Engineering');
+    const desig = safeString(merged.designation || merged.title || rawUser.designation || 'Software Engineer');
+    const contact = safeString(merged.phone || merged.contact || merged.mobile || rawUser.phone || '');
+    const avatar = safeString(merged.avatarUrl || merged.profilePicture || merged.image || rawUser.avatarUrl || '');
 
     const normalizedUser: EmsUser = {
-      id: merged.id || merged._id || rawUser.id || `ems-${empId}`,
+      id: safeString(merged.id || merged._id || rawUser.id || `ems-${empId}`),
       employeeId: empId,
       fullName: name,
       email: email,
       phone: contact,
       department: dept,
       designation: desig,
-      role: determineErpRole(desig, merged.role || rawUser.role),
-      status: (merged.status || rawUser.status) === 'INACTIVE' ? 'INACTIVE' : 'ACTIVE',
+      role: determineErpRole(desig, merged.role || rawUser.role, dept),
+      status: safeString(merged.status || rawUser.status) === 'INACTIVE' ? 'INACTIVE' : 'ACTIVE',
       avatarUrl: avatar,
     };
+
+    // 3. Synchronize with PJSOFONIC CRM Backend
+    try {
+      const crmPayload = isEmail
+        ? { email: employeeIdOrEmail, password }
+        : { login_id: employeeIdOrEmail.toUpperCase(), employeeId: employeeIdOrEmail.toUpperCase(), password };
+
+      const crmRes = await fetch('https://pjsofonic-crm-backend.onrender.com/api/v1/auth/ems-login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(crmPayload),
+      });
+
+      if (crmRes.ok) {
+        const crmData = await crmRes.json();
+        if (crmData.access_token && typeof window !== 'undefined') {
+          localStorage.setItem('pj_crm_token', crmData.access_token);
+        }
+      }
+    } catch (crmErr) {
+      console.warn('CRM Backend auth background sync notice:', crmErr);
+    }
 
     return {
       success: true,
@@ -112,9 +136,10 @@ export async function authenticateWithEms(employeeIdOrEmail: string, password: s
 export async function fetchEmsEmployees(token?: string): Promise<EmsUser[]> {
   let fetchedList: any[] = [];
   try {
+    const authToken = token || (typeof window !== 'undefined' ? localStorage.getItem('pj_ems_token') : null);
     const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
+    if (authToken) {
+      headers['Authorization'] = `Bearer ${authToken}`;
     }
 
     const res = await fetch(`${EMS_API_BASE}/employees`, { headers });
@@ -135,9 +160,18 @@ export async function fetchEmsEmployees(token?: string): Promise<EmsUser[]> {
       } else if (data.employeesByDepartment && typeof data.employeesByDepartment === 'object') {
         fetchedList = Object.values(data.employeesByDepartment).flat();
       }
+    } else {
+      // Try local Express Backend API fallback
+      const localRes = await fetch('http://localhost:5000/api/employees').catch(() => null);
+      if (localRes && localRes.ok) {
+        const localData = await localRes.json();
+        if (Array.isArray(localData.employees)) {
+          fetchedList = localData.employees;
+        }
+      }
     }
   } catch (err) {
-    console.error('EMS Employee fetch failed:', err);
+    console.error('EMS Employee fetch notice:', err);
   }
 
   // Restore current logged-in user from localStorage
@@ -149,18 +183,28 @@ export async function fetchEmsEmployees(token?: string): Promise<EmsUser[]> {
     }
   } catch (e) {}
 
-  const normalized: EmsUser[] = fetchedList.map((emp: any, idx: number) => ({
-    id: emp.id || emp._id || `ems-${emp.employeeId || idx}`,
-    employeeId: emp.employeeId || emp.code || `EMS-10${idx + 1}`,
-    fullName: emp.fullName || emp.name || emp.username || `EMS Staff ${idx + 1}`,
-    email: emp.email || `employee${idx + 1}@pjsofonic.com`,
-    phone: emp.phone || emp.contact || emp.mobile || '',
-    department: emp.department || emp.dept || 'Software Engineering',
-    designation: emp.designation || emp.title || 'Software Engineer',
-    role: determineErpRole(emp.designation || emp.title, emp.role || emp.department),
-    status: emp.status === 'INACTIVE' ? 'INACTIVE' : 'ACTIVE',
-    avatarUrl: emp.avatarUrl || emp.profilePicture || emp.image || '',
-  }));
+  const normalized: EmsUser[] = fetchedList.map((emp: any, idx: number) => {
+    const empId = safeString(emp.employeeId || emp.code || `EMS-10${idx + 1}`);
+    const name = safeString(emp.fullName || emp.name || emp.username || `EMS Staff ${idx + 1}`);
+    const email = safeString(emp.email || `employee${idx + 1}@pjsofonic.com`);
+    const contact = safeString(emp.phone || emp.contact || emp.mobile || '');
+    const dept = safeString(emp.department || emp.dept || 'Software Engineering');
+    const desig = safeString(emp.designation || emp.title || 'Software Engineer');
+    const avatar = safeString(emp.avatarUrl || emp.profilePicture || emp.image || '');
+
+    return {
+      id: safeString(emp.id || emp._id || `ems-${empId || idx}`),
+      employeeId: empId,
+      fullName: name,
+      email: email,
+      phone: contact,
+      department: dept,
+      designation: desig,
+      role: determineErpRole(desig, emp.role, dept),
+      status: safeString(emp.status) === 'INACTIVE' ? 'INACTIVE' : 'ACTIVE',
+      avatarUrl: avatar,
+    };
+  });
 
   // Ensure logged-in verified EMS employee is present in list
   if (currentUser && !normalized.some((e) => e.employeeId === currentUser?.employeeId || e.id === currentUser?.id)) {
@@ -170,12 +214,14 @@ export async function fetchEmsEmployees(token?: string): Promise<EmsUser[]> {
   return normalized;
 }
 
-export function determineErpRole(designation?: string, role?: string): 'ADMIN' | 'TEAM_LEAD' | 'EMPLOYEE' | 'QA' | 'FINANCE' {
-  const d = (designation || '').toUpperCase();
-  const r = (role || '').toUpperCase();
+export function determineErpRole(designation?: any, role?: any, department?: any): 'ADMIN' | 'TEAM_LEAD' | 'EMPLOYEE' | 'QA' | 'FINANCE' {
+  const d = safeString(designation).toUpperCase();
+  const r = safeString(role).toUpperCase();
+  const dept = safeString(department).toUpperCase();
+
   if (r === 'ADMIN' || d.includes('ADMIN') || d.includes('DIRECTOR')) return 'ADMIN';
   if (d.includes('LEAD') || d.includes('MANAGER') || d.includes('TL') || r.includes('LEAD')) return 'TEAM_LEAD';
-  if (d.includes('QA') || d.includes('TEST') || d.includes('QUALITY')) return 'QA';
-  if (d.includes('FINANCE') || d.includes('ACCOUNT')) return 'FINANCE';
+  if (d.includes('QA') || d.includes('TEST') || d.includes('QUALITY') || dept.includes('QUALITY') || dept.includes('QA') || r === 'QA') return 'QA';
+  if (d.includes('FINANCE') || d.includes('ACCOUNT') || dept.includes('FINANCE') || r === 'FINANCE') return 'FINANCE';
   return 'EMPLOYEE';
 }
