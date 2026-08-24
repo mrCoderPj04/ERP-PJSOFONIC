@@ -1,7 +1,8 @@
 import { fetchSupabaseProjects, saveProjectToSupabase } from './supabase';
 import { safeString } from './safeString';
 
-export const CRM_API_BASE = 'https://pjsofonic-crm-backend.onrender.com';
+export const CRM_API_BASE = process.env.NEXT_PUBLIC_CRM_API_BASE || 'https://pjsofonic-crm-backend.onrender.com';
+export const ERP_BACKEND_API_BASE = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://pjsofonic-erp-backend.onrender.com/api';
 
 export interface CrmCustomerProject {
   id: string;
@@ -78,9 +79,9 @@ export function saveCrmProject(project: Partial<CrmCustomerProject>): CrmCustome
   // 1. Sync to Supabase project_erp schema in background
   saveProjectToSupabase(newProj).catch((err) => console.warn('Supabase sync notice:', err));
 
-  // 2. Sync to local Express Backend if online
+  // 2. Sync to Express Backend if online
   if (typeof window !== 'undefined') {
-    fetch('http://localhost:5000/api/crm/projects', {
+    fetch(`${ERP_BACKEND_API_BASE}/crm/projects`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(newProj),
@@ -94,7 +95,7 @@ export function saveCrmProject(project: Partial<CrmCustomerProject>): CrmCustome
  * Ingests strictly live customer projects from:
  * 1. Live PJSOFONIC CRM Backend API (with auth token)
  * 2. Supabase (project_erp schema)
- * 3. Local Express Backend API (/api/crm/projects)
+ * 3. Express Backend API (/api/crm/projects)
  * 4. Stored user projects
  */
 export async function fetchCrmCustomerProjects(): Promise<CrmCustomerProject[]> {
@@ -161,9 +162,9 @@ export async function fetchCrmCustomerProjects(): Promise<CrmCustomerProject[]> 
     console.warn('Remote CRM API connection notice:', err);
   }
 
-  // 2. Fetch live projects from local Express Backend API
+  // 2. Fetch live projects from Express Backend API
   try {
-    const expressRes = await fetch('http://localhost:5000/api/crm/projects', { cache: 'no-store' });
+    const expressRes = await fetch(`${ERP_BACKEND_API_BASE}/crm/projects`, { cache: 'no-store' });
     if (expressRes.ok) {
       const data = await expressRes.json();
       const list = data.projects || data.data || (Array.isArray(data) ? data : []);

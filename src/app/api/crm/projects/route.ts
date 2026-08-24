@@ -4,9 +4,10 @@ import { fetchSupabaseProjects } from '../../../../lib/supabase';
 export async function GET() {
   const map = new Map<string, any>();
 
-  // 1. Try local Express backend if running
+  // 1. Try Express backend
   try {
-    const expressRes = await fetch('http://localhost:5000/api/crm/projects', { cache: 'no-store' });
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://pjsofonic-erp-backend.onrender.com/api';
+    const expressRes = await fetch(`${backendUrl}/crm/projects`, { cache: 'no-store' });
     if (expressRes.ok) {
       const data = await expressRes.json();
       const list = data.projects || (Array.isArray(data) ? data : []);

@@ -86,7 +86,8 @@ export default function DashboardPage() {
     setTasks(updated);
 
     // Sync to Express Backend if online
-    fetch(`http://localhost:5000/api/tasks/${task.id}/status`, {
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://pjsofonic-erp-backend.onrender.com/api';
+    fetch(`${backendUrl}/tasks/${task.id}/status`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status: 'working' }),
@@ -104,7 +105,8 @@ export default function DashboardPage() {
     setTasks(updated);
 
     // Sync to Express Backend
-    fetch(`http://localhost:5000/api/tasks/${submittingTask.id}/status`, {
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://pjsofonic-erp-backend.onrender.com/api';
+    fetch(`${backendUrl}/tasks/${submittingTask.id}/status`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status: 'Done', submittedWork: submissionNotes }),

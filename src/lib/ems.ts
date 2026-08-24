@@ -160,9 +160,9 @@ export async function fetchEmsEmployees(token?: string): Promise<EmsUser[]> {
       } else if (data.employeesByDepartment && typeof data.employeesByDepartment === 'object') {
         fetchedList = Object.values(data.employeesByDepartment).flat();
       }
-    } else {
-      // Try local Express Backend API fallback
-      const localRes = await fetch('http://localhost:5000/api/employees').catch(() => null);
+      // Try Express Backend API fallback
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://pjsofonic-erp-backend.onrender.com/api';
+      const localRes = await fetch(`${backendUrl}/employees`).catch(() => null);
       if (localRes && localRes.ok) {
         const localData = await localRes.json();
         if (Array.isArray(localData.employees)) {
