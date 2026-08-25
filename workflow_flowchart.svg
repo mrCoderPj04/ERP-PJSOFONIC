@@ -1,0 +1,364 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 2480" width="100%" height="100%" style="background-color: #0B0F19; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+  <defs>
+    <!-- Gradients -->
+    <linearGradient id="headerGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#4F46E5" />
+      <stop offset="50%" stop-color="#7C3AED" />
+      <stop offset="100%" stop-color="#06B6D4" />
+    </linearGradient>
+    <linearGradient id="adminGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1E1B4B" />
+      <stop offset="100%" stop-color="#0F172A" />
+    </linearGradient>
+    <linearGradient id="tlGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#451A03" />
+      <stop offset="100%" stop-color="#0F172A" />
+    </linearGradient>
+    <linearGradient id="fsGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#083344" />
+      <stop offset="100%" stop-color="#0F172A" />
+    </linearGradient>
+    <linearGradient id="qaGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#064E3B" />
+      <stop offset="100%" stop-color="#0F172A" />
+    </linearGradient>
+
+    <!-- Filters & Shadows -->
+    <filter id="cardShadow" x="-10%" y="-10%" width="120%" height="125%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000000" flood-opacity="0.5" />
+    </filter>
+
+    <!-- Arrow Marker -->
+    <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#6B7280" />
+    </marker>
+    <marker id="arrowAdmin" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#6366F1" />
+    </marker>
+    <marker id="arrowTL" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#F59E0B" />
+    </marker>
+    <marker id="arrowFS" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#06B6D4" />
+    </marker>
+    <marker id="arrowQA" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#10B981" />
+    </marker>
+  </defs>
+
+  <!-- Background Base Grid Pattern -->
+  <rect width="1600" height="2480" fill="#0B0F19" />
+
+  <!-- 1. HEADER HERO -->
+  <rect x="0" y="0" width="1600" height="110" fill="#111827" stroke="#1F2937" stroke-width="2" />
+  <rect x="80" y="22" width="6" height="66" rx="3" fill="url(#headerGrad)" />
+  <text x="105" y="55" fill="#FFFFFF" font-size="30" font-weight="800" letter-spacing="-0.5">PJSOFONIC ERP — Complete System Architecture &amp; Working Flowchart</text>
+  <text x="105" y="82" fill="#9CA3AF" font-size="16" font-weight="500">Multi-Role Lifecycle: Admin &bull; Team Leader &bull; Full Stack Developer &bull; Quality QA &amp; QMS &bull; Final Completion</text>
+
+  <!-- ========================================================================= -->
+  <!-- 2. AUTHENTICATION & DIRECTORY -->
+  <!-- ========================================================================= -->
+  <g transform="translate(80, 140)">
+    <rect x="0" y="0" width="1440" height="240" rx="20" fill="#0F172A" stroke="#334155" stroke-width="2" filter="url(#cardShadow)" />
+    <text x="30" y="38" fill="#94A3B8" font-size="18" font-weight="700" letter-spacing="0.5">1. EMS AUTHENTICATION GATEWAY &amp; DYNAMIC ROLE INGESTION</text>
+
+    <!-- Login Box -->
+    <rect x="30" y="60" width="360" height="150" rx="14" fill="#111827" stroke="#6366F1" stroke-width="1.5" />
+    <rect x="50" y="75" width="120" height="24" rx="6" fill="#1E1B4B" stroke="#6366F1" stroke-width="1" />
+    <text x="60" y="91" fill="#818CF8" font-size="12" font-weight="700">EMS Auth API</text>
+    <text x="50" y="125" fill="#FFFFFF" font-size="16" font-weight="700">Staff Login Screen (/login)</text>
+    <text x="50" y="152" fill="#9CA3AF" font-size="13">&bull; Auth with Employee ID / Email + Password</text>
+    <text x="50" y="174" fill="#9CA3AF" font-size="13">&bull; Fetches real-time profile from EMS Backend</text>
+
+    <!-- Connector -->
+    <line x1="390" y1="135" x2="435" y2="135" stroke="#6366F1" stroke-width="3" marker-end="url(#arrowAdmin)" />
+
+    <!-- 4 Role Cards -->
+    <!-- Admin -->
+    <rect x="440" y="60" width="220" height="150" rx="14" fill="#111827" stroke="#6366F1" stroke-width="1.5" />
+    <rect x="455" y="75" width="90" height="24" rx="6" fill="#1E1B4B" stroke="#6366F1" stroke-width="1" />
+    <text x="465" y="91" fill="#818CF8" font-size="12" font-weight="700">👑 ADMIN</text>
+    <text x="455" y="125" fill="#FFFFFF" font-size="14" font-weight="700">Admin Control</text>
+    <text x="455" y="148" fill="#9CA3AF" font-size="12">Full portfolio view,</text>
+    <text x="455" y="166" fill="#9CA3AF" font-size="12">assign TL, approve,</text>
+    <text x="455" y="184" fill="#9CA3AF" font-size="12">final project sign-off</text>
+
+    <!-- Team Leader -->
+    <rect x="685" y="60" width="220" height="150" rx="14" fill="#111827" stroke="#F59E0B" stroke-width="1.5" />
+    <rect x="700" y="75" width="125" height="24" rx="6" fill="#451A03" stroke="#F59E0B" stroke-width="1" />
+    <text x="710" y="91" fill="#FCD34D" font-size="12" font-weight="700">👑 TEAM LEADER</text>
+    <text x="700" y="125" fill="#FFFFFF" font-size="14" font-weight="700">Dual Workbench</text>
+    <text x="700" y="148" fill="#9CA3AF" font-size="12">Production &amp; QA review,</text>
+    <text x="700" y="166" fill="#9CA3AF" font-size="12">assign Full Stack staff,</text>
+    <text x="700" y="184" fill="#9CA3AF" font-size="12">submit project All Done</text>
+
+    <!-- Full Stack -->
+    <rect x="930" y="60" width="220" height="150" rx="14" fill="#111827" stroke="#06B6D4" stroke-width="1.5" />
+    <rect x="945" y="75" width="115" height="24" rx="6" fill="#083344" stroke="#06B6D4" stroke-width="1" />
+    <text x="955" y="91" fill="#67E8F9" font-size="12" font-weight="700">💻 FULL STACK</text>
+    <text x="945" y="125" fill="#FFFFFF" font-size="14" font-weight="700">Execution Desk</text>
+    <text x="945" y="148" fill="#9CA3AF" font-size="12">Upload 4 deliverables,</text>
+    <text x="945" y="166" fill="#9CA3AF" font-size="12">manage milestone tasks,</text>
+    <text x="945" y="184" fill="#9CA3AF" font-size="12">timesheet daily logs</text>
+
+    <!-- Quality QA -->
+    <rect x="1175" y="60" width="235" height="150" rx="14" fill="#111827" stroke="#10B981" stroke-width="1.5" />
+    <rect x="1190" y="75" width="135" height="24" rx="6" fill="#064E3B" stroke="#10B981" stroke-width="1" />
+    <text x="1200" y="91" fill="#6EE7B7" font-size="12" font-weight="700">🛡️ QUALITY / QA</text>
+    <text x="1190" y="125" fill="#FFFFFF" font-size="14" font-weight="700">Audit &amp; Testing</text>
+    <text x="1190" y="148" fill="#9CA3AF" font-size="12">Submit 3 QA reports,</text>
+    <text x="1190" y="166" fill="#9CA3AF" font-size="12">grant Quality Approval,</text>
+    <text x="1190" y="184" fill="#9CA3AF" font-size="12">open live QMS platform</text>
+  </g>
+
+  <!-- Central Connector Arrow 1 -> 2 -->
+  <line x1="800" y1="380" x2="800" y2="420" stroke="#475569" stroke-width="3" marker-end="url(#arrow)" />
+
+  <!-- ========================================================================= -->
+  <!-- 3. STAGE 1: ADMIN & CRM INGESTION -->
+  <!-- ========================================================================= -->
+  <g transform="translate(80, 420)">
+    <rect x="0" y="0" width="1440" height="280" rx="20" fill="#0F172A" stroke="#6366F1" stroke-width="2" filter="url(#cardShadow)" />
+    <text x="30" y="38" fill="#818CF8" font-size="18" font-weight="700" letter-spacing="0.5">2. STAGE 1: CRM INGESTION &amp; ADMIN ASSIGNMENT TO TEAM LEADER</text>
+
+    <!-- Source Ingestion -->
+    <rect x="30" y="60" width="380" height="190" rx="14" fill="#111827" stroke="#374151" stroke-width="1.5" />
+    <rect x="50" y="75" width="105" height="24" rx="6" fill="#3B0764" stroke="#A855F7" stroke-width="1" />
+    <text x="60" y="91" fill="#D8B4FE" font-size="12" font-weight="700">Source 1 &amp; 2</text>
+    <text x="50" y="125" fill="#FFFFFF" font-size="16" font-weight="700">Project Ingestion Desk</text>
+    <text x="50" y="152" fill="#9CA3AF" font-size="13">&bull; CRM API Sync (https://pjsofonic-crm-backend)</text>
+    <text x="50" y="174" fill="#9CA3AF" font-size="13">&bull; Admin Manual Create Project (/projects)</text>
+    <text x="50" y="196" fill="#9CA3AF" font-size="13">&bull; Auto-syncs client requirements, budget &amp; scope</text>
+
+    <!-- Connector -->
+    <line x1="410" y1="155" x2="475" y2="155" stroke="#6366F1" stroke-width="3" marker-end="url(#arrowAdmin)" />
+
+    <!-- Admin Assigns TL -->
+    <rect x="480" y="60" width="460" height="190" rx="14" fill="#111827" stroke="#6366F1" stroke-width="1.5" />
+    <rect x="500" y="75" width="115" height="24" rx="6" fill="#1E1B4B" stroke="#6366F1" stroke-width="1" />
+    <text x="510" y="91" fill="#818CF8" font-size="12" font-weight="700">Admin Action</text>
+    <text x="500" y="125" fill="#FFFFFF" font-size="16" font-weight="700">Select Department Team Leader</text>
+    <text x="500" y="152" fill="#9CA3AF" font-size="13">&bull; Dropdown strictly lists registered EMS Team Leaders</text>
+    <text x="500" y="174" fill="#9CA3AF" font-size="13">&bull; Format: [TL ID] Full Name - Department Scope</text>
+    <text x="500" y="196" fill="#9CA3AF" font-size="13">&bull; Dispatches project &amp; sets status: ASSIGNED_TO_TL</text>
+
+    <!-- Connector -->
+    <line x1="940" y1="155" x2="1005" y2="155" stroke="#6366F1" stroke-width="3" marker-end="url(#arrowAdmin)" />
+
+    <!-- Real-Time Notification -->
+    <rect x="1010" y="60" width="400" height="190" rx="14" fill="#111827" stroke="#EC4899" stroke-width="1.5" />
+    <rect x="1030" y="75" width="125" height="24" rx="6" fill="#500724" stroke="#EC4899" stroke-width="1" />
+    <text x="1040" y="91" fill="#F472B6" font-size="12" font-weight="700">Real-Time Sync</text>
+    <text x="1030" y="125" fill="#FFFFFF" font-size="16" font-weight="700">Live Auto-Fetch &amp; Notification</text>
+    <text x="1030" y="152" fill="#9CA3AF" font-size="13">&bull; Admin: 'You assigned project to [TL Name]'</text>
+    <text x="1030" y="174" fill="#9CA3AF" font-size="13">&bull; TL: '[Admin Name] assigned project to you'</text>
+    <text x="1030" y="196" fill="#9CA3AF" font-size="13">&bull; Project auto-appears on TL /projects &amp; /dashboard</text>
+  </g>
+
+  <!-- Central Connector Arrow 2 -> 3 -->
+  <line x1="800" y1="700" x2="800" y2="740" stroke="#475569" stroke-width="3" marker-end="url(#arrow)" />
+
+  <!-- ========================================================================= -->
+  <!-- 4. STAGE 2: TEAM LEADER & FULL STACK 4 DELIVERABLES -->
+  <!-- ========================================================================= -->
+  <g transform="translate(80, 740)">
+    <rect x="0" y="0" width="1440" height="370" rx="20" fill="#0F172A" stroke="#F59E0B" stroke-width="2" filter="url(#cardShadow)" />
+    <text x="30" y="38" fill="#FCD34D" font-size="18" font-weight="700" letter-spacing="0.5">3. STAGE 2: TEAM LEADER EXECUTION &amp; 4 FULL STACK DELIVERABLES</text>
+
+    <!-- TL Assigns FS -->
+    <rect x="30" y="60" width="370" height="280" rx="14" fill="#111827" stroke="#F59E0B" stroke-width="1.5" />
+    <rect x="50" y="75" width="145" height="24" rx="6" fill="#451A03" stroke="#F59E0B" stroke-width="1" />
+    <text x="60" y="91" fill="#FCD34D" font-size="12" font-weight="700">TL Production Desk</text>
+    <text x="50" y="125" fill="#FFFFFF" font-size="16" font-weight="700">Assign to Full Stack</text>
+    <text x="50" y="152" fill="#9CA3AF" font-size="13">&bull; TL selects assigned project</text>
+    <text x="50" y="174" fill="#9CA3AF" font-size="13">&bull; Selects Full Stack Engineer ([FS ID])</text>
+    <text x="50" y="196" fill="#9CA3AF" font-size="13">&bull; Decomposes project into milestone tasks</text>
+    <text x="50" y="218" fill="#9CA3AF" font-size="13">&bull; Notification dispatches to engineer</text>
+    <text x="50" y="240" fill="#9CA3AF" font-size="13">&bull; Status: TL_ASSIGNED_TO_FULLSTACK</text>
+
+    <!-- Connector -->
+    <line x1="400" y1="200" x2="455" y2="200" stroke="#06B6D4" stroke-width="3" marker-end="url(#arrowFS)" />
+
+    <!-- 4 Deliverables Box -->
+    <rect x="460" y="60" width="490" height="280" rx="14" fill="#111827" stroke="#06B6D4" stroke-width="1.5" />
+    <rect x="480" y="75" width="165" height="24" rx="6" fill="#083344" stroke="#06B6D4" stroke-width="1" />
+    <text x="490" y="91" fill="#67E8F9" font-size="12" font-weight="700">Full Stack Execution</text>
+    <text x="480" y="125" fill="#FFFFFF" font-size="16" font-weight="700">Upload 4 Required Deliverables</text>
+    
+    <rect x="480" y="145" width="450" height="32" rx="8" fill="#0F172A" stroke="#1F2937" />
+    <text x="495" y="166" fill="#38BDF8" font-size="13" font-weight="600">1. 📑 Implementation Plan</text>
+    <text x="690" y="166" fill="#9CA3AF" font-size="12">(Architecture, schemas, APIs)</text>
+
+    <rect x="480" y="185" width="450" height="32" rx="8" fill="#0F172A" stroke="#1F2937" />
+    <text x="495" y="206" fill="#38BDF8" font-size="13" font-weight="600">2. 🖼️ Logo Image Asset</text>
+    <text x="690" y="206" fill="#9CA3AF" font-size="12">(Live asset preview URL)</text>
+
+    <rect x="480" y="225" width="450" height="32" rx="8" fill="#0F172A" stroke="#1F2937" />
+    <text x="495" y="246" fill="#38BDF8" font-size="13" font-weight="600">3. 📝 Walkthrough Guide</text>
+    <text x="690" y="246" fill="#9CA3AF" font-size="12">(Setup, demo &amp; test cases)</text>
+
+    <rect x="480" y="265" width="450" height="32" rx="8" fill="#0F172A" stroke="#1F2937" />
+    <text x="495" y="286" fill="#38BDF8" font-size="13" font-weight="600">4. 📊 Workflow Chart</text>
+    <text x="690" y="286" fill="#9CA3AF" font-size="12">(Architecture &amp; dataflow)</text>
+
+    <!-- Connector -->
+    <line x1="950" y1="200" x2="1005" y2="200" stroke="#F59E0B" stroke-width="3" marker-end="url(#arrowTL)" />
+
+    <!-- TL Production Approval -->
+    <rect x="1010" y="60" width="400" height="280" rx="14" fill="#111827" stroke="#10B981" stroke-width="1.5" />
+    <rect x="1030" y="75" width="180" height="24" rx="6" fill="#064E3B" stroke="#10B981" stroke-width="1" />
+    <text x="1040" y="91" fill="#6EE7B7" font-size="12" font-weight="700">TL Production Approval</text>
+    <text x="1030" y="125" fill="#FFFFFF" font-size="16" font-weight="700">Approve &amp; Send to Quality</text>
+    <text x="1030" y="152" fill="#9CA3AF" font-size="13">&bull; TL verifies 4 submitted deliverables</text>
+    <text x="1030" y="174" fill="#9CA3AF" font-size="13">&bull; Clicks 'Approve &amp; Send to Quality'</text>
+    <text x="1030" y="196" fill="#9CA3AF" font-size="13">&bull; Status becomes: TL_PRODUCTION_APPROVED</text>
+    <text x="1030" y="218" fill="#9CA3AF" font-size="13">&bull; Dispatches directly to Quality Queue &amp; QMS</text>
+    <text x="1030" y="240" fill="#9CA3AF" font-size="13">&bull; Real-time alert to Quality Department</text>
+  </g>
+
+  <!-- Central Connector Arrow 3 -> 4 -->
+  <line x1="800" y1="1110" x2="800" y2="1150" stroke="#475569" stroke-width="3" marker-end="url(#arrow)" />
+
+  <!-- ========================================================================= -->
+  <!-- 5. STAGE 3: QUALITY & QMS TESTING ENGINE -->
+  <!-- ========================================================================= -->
+  <g transform="translate(80, 1150)">
+    <rect x="0" y="0" width="1440" height="340" rx="20" fill="#0F172A" stroke="#10B981" stroke-width="2" filter="url(#cardShadow)" />
+    <text x="30" y="38" fill="#6EE7B7" font-size="18" font-weight="700" letter-spacing="0.5">4. STAGE 3: QUALITY ASSURANCE &amp; LIVE QMS TESTING PLATFORM</text>
+
+    <!-- 3 QA Action Buttons -->
+    <!-- Button 1: Submit 3 QA Reports -->
+    <rect x="30" y="60" width="430" height="250" rx="14" fill="#111827" stroke="#10B981" stroke-width="1.5" />
+    <rect x="50" y="75" width="115" height="24" rx="6" fill="#064E3B" stroke="#10B981" stroke-width="1" />
+    <text x="60" y="91" fill="#6EE7B7" font-size="12" font-weight="700">Action Button 1</text>
+    <text x="50" y="125" fill="#FFFFFF" font-size="16" font-weight="700">Submit 3 QA Reports</text>
+    <text x="50" y="155" fill="#9CA3AF" font-size="13">&bull; 🐛 Bug Report (Bug count &amp; severity)</text>
+    <text x="50" y="180" fill="#9CA3AF" font-size="13">&bull; 🧪 Test Report (Test pass rate %)</text>
+    <text x="50" y="205" fill="#9CA3AF" font-size="13">&bull; 🛡️ Quality Report (Audit ISO Grade A+)</text>
+    <text x="50" y="230" fill="#9CA3AF" font-size="13">&bull; Saves &amp; syncs directly to ERP database</text>
+
+    <!-- Button 2: Approve Report -->
+    <rect x="490" y="60" width="440" height="250" rx="14" fill="#111827" stroke="#6366F1" stroke-width="1.5" />
+    <rect x="510" y="75" width="115" height="24" rx="6" fill="#1E1B4B" stroke="#6366F1" stroke-width="1" />
+    <text x="520" y="91" fill="#818CF8" font-size="12" font-weight="700">Action Button 2</text>
+    <text x="510" y="125" fill="#FFFFFF" font-size="16" font-weight="700">Approve Report</text>
+    <text x="510" y="155" fill="#9CA3AF" font-size="13">&bull; Quality Auditor grants official sign-off</text>
+    <text x="510" y="180" fill="#9CA3AF" font-size="13">&bull; Marks project status: QUALITY_APPROVED</text>
+    <text x="510" y="205" fill="#9CA3AF" font-size="13">&bull; Moves project to Team Leader Quality section</text>
+    <text x="510" y="230" fill="#9CA3AF" font-size="13">&bull; Notification fired: 'QA approved reports'</text>
+
+    <!-- Button 3: Test Project (QMS) -->
+    <rect x="960" y="60" width="450" height="250" rx="14" fill="#111827" stroke="#A855F7" stroke-width="1.5" />
+    <rect x="980" y="75" width="115" height="24" rx="6" fill="#3B0764" stroke="#A855F7" stroke-width="1" />
+    <text x="990" y="91" fill="#D8B4FE" font-size="12" font-weight="700">Action Button 3</text>
+    <text x="980" y="125" fill="#FFFFFF" font-size="16" font-weight="700">Test Project (Live QMS)</text>
+    <text x="980" y="155" fill="#9CA3AF" font-size="13">&bull; Opens: https://pjsofonic-qms.onrender.com</text>
+    <text x="980" y="180" fill="#9CA3AF" font-size="13">&bull; Fetches live deliverables via /api/qms/projects</text>
+    <text x="980" y="205" fill="#9CA3AF" font-size="13">&bull; Executes manual &amp; automated test suites</text>
+    <text x="980" y="230" fill="#9CA3AF" font-size="13">&bull; Posts test results back to ERP via POST /test-results</text>
+  </g>
+
+  <!-- Central Connector Arrow 4 -> 5 -->
+  <line x1="800" y1="1490" x2="800" y2="1530" stroke="#475569" stroke-width="3" marker-end="url(#arrow)" />
+
+  <!-- ========================================================================= -->
+  <!-- 6. STAGE 4: FINAL APPROVAL & PROJECT CLOSURE -->
+  <!-- ========================================================================= -->
+  <g transform="translate(80, 1530)">
+    <rect x="0" y="0" width="1440" height="290" rx="20" fill="#0F172A" stroke="#10B981" stroke-width="2" filter="url(#cardShadow)" />
+    <text x="30" y="38" fill="#6EE7B7" font-size="18" font-weight="700" letter-spacing="0.5">5. STAGE 4: TL 'ALL DONE' SUBMISSION &amp; ADMIN FINAL TOTAL APPROVAL</text>
+
+    <!-- TL Submits All Done -->
+    <rect x="30" y="60" width="410" height="200" rx="14" fill="#111827" stroke="#F59E0B" stroke-width="1.5" />
+    <rect x="50" y="75" width="130" height="24" rx="6" fill="#451A03" stroke="#F59E0B" stroke-width="1" />
+    <text x="60" y="91" fill="#FCD34D" font-size="12" font-weight="700">TL Quality Desk</text>
+    <text x="50" y="125" fill="#FFFFFF" font-size="16" font-weight="700">Submit Project ALL DONE</text>
+    <text x="50" y="152" fill="#9CA3AF" font-size="13">&bull; TL reviews verified 3 QA reports</text>
+    <text x="50" y="174" fill="#9CA3AF" font-size="13">&bull; Clicks 'Project All Done'</text>
+    <text x="50" y="196" fill="#9CA3AF" font-size="13">&bull; Routes to Admin for final sign-off</text>
+    <text x="50" y="218" fill="#9CA3AF" font-size="13">&bull; Notification: 'TL submitted All Done'</text>
+
+    <!-- Connector -->
+    <line x1="440" y1="160" x2="495" y2="160" stroke="#6366F1" stroke-width="3" marker-end="url(#arrowAdmin)" />
+
+    <!-- Admin Final Approval -->
+    <rect x="500" y="60" width="440" height="200" rx="14" fill="#111827" stroke="#6366F1" stroke-width="1.5" />
+    <rect x="520" y="75" width="125" height="24" rx="6" fill="#1E1B4B" stroke="#6366F1" stroke-width="1" />
+    <text x="530" y="91" fill="#818CF8" font-size="12" font-weight="700">Admin Sign-Off</text>
+    <text x="520" y="125" fill="#FFFFFF" font-size="16" font-weight="700">Grant Final Total Approval</text>
+    <text x="520" y="152" fill="#9CA3AF" font-size="13">&bull; Admin reviews budget, deliverables &amp; QA</text>
+    <text x="520" y="174" fill="#9CA3AF" font-size="13">&bull; Clicks 'Grant Final Total Approval'</text>
+    <text x="520" y="196" fill="#9CA3AF" font-size="13">&bull; Project marked COMPLETED across all profiles</text>
+    <text x="520" y="218" fill="#9CA3AF" font-size="13">&bull; Live broadcast notification to all users</text>
+
+    <!-- Connector -->
+    <line x1="940" y1="160" x2="995" y2="160" stroke="#10B981" stroke-width="3" marker-end="url(#arrowQA)" />
+
+    <!-- Completed & Exports -->
+    <rect x="1000" y="60" width="410" height="200" rx="14" fill="#111827" stroke="#10B981" stroke-width="1.5" />
+    <rect x="1020" y="75" width="145" height="24" rx="6" fill="#064E3B" stroke="#10B981" stroke-width="1" />
+    <text x="1030" y="91" fill="#6EE7B7" font-size="12" font-weight="700">Completed Dossier</text>
+    <text x="1020" y="125" fill="#FFFFFF" font-size="16" font-weight="700">Export Reports &amp; Archive</text>
+    <text x="1020" y="152" fill="#9CA3AF" font-size="13">&bull; 📄 Export Project Dossier in PDF</text>
+    <text x="1020" y="174" fill="#9CA3AF" font-size="13">&bull; 📊 Export Project Data in Excel</text>
+    <text x="1020" y="196" fill="#9CA3AF" font-size="13">&bull; ⏱️ Export Team Timesheets in Excel</text>
+    <text x="1020" y="218" fill="#9CA3AF" font-size="13">&bull; Permanent archive in Supabase project_erp</text>
+  </g>
+
+  <!-- Central Connector Arrow 5 -> 6 -->
+  <line x1="800" y1="1820" x2="800" y2="1860" stroke="#475569" stroke-width="3" marker-end="url(#arrow)" />
+
+  <!-- ========================================================================= -->
+  <!-- 7. SHARED REAL-TIME ECOSYSTEM SERVICES -->
+  <!-- ========================================================================= -->
+  <g transform="translate(80, 1860)">
+    <rect x="0" y="0" width="1440" height="310" rx="20" fill="#0F172A" stroke="#475569" stroke-width="2" filter="url(#cardShadow)" />
+    <text x="30" y="38" fill="#FFFFFF" font-size="18" font-weight="700" letter-spacing="0.5">6. REAL-TIME SHARED ECOSYSTEM SERVICES</text>
+
+    <!-- Communication Hub -->
+    <rect x="30" y="60" width="330" height="220" rx="14" fill="#111827" stroke="#06B6D4" stroke-width="1.5" />
+    <rect x="50" y="75" width="105" height="24" rx="6" fill="#083344" stroke="#06B6D4" stroke-width="1" />
+    <text x="60" y="91" fill="#67E8F9" font-size="12" font-weight="700">💬 Chat Hub</text>
+    <text x="50" y="125" fill="#FFFFFF" font-size="16" font-weight="700">EMS Communication</text>
+    <text x="50" y="152" fill="#9CA3AF" font-size="13">&bull; Team Channel: Role-filtered</text>
+    <text x="50" y="174" fill="#9CA3AF" font-size="13">&bull; Direct DM: All registered staff</text>
+    <text x="50" y="196" fill="#9CA3AF" font-size="13">&bull; 2-way real-time messaging</text>
+    <text x="50" y="218" fill="#9CA3AF" font-size="13">&bull; Instant notification on new DM</text>
+
+    <!-- Timesheet Engine -->
+    <rect x="385" y="60" width="330" height="220" rx="14" fill="#111827" stroke="#F59E0B" stroke-width="1.5" />
+    <rect x="405" y="75" width="115" height="24" rx="6" fill="#451A03" stroke="#F59E0B" stroke-width="1" />
+    <text x="415" y="91" fill="#FCD34D" font-size="12" font-weight="700">⏱️ Timesheet</text>
+    <text x="405" y="125" fill="#FFFFFF" font-size="16" font-weight="700">Productivity &amp; Tasks</text>
+    <text x="405" y="152" fill="#9CA3AF" font-size="13">&bull; Daily timesheet TODO entries</text>
+    <text x="405" y="174" fill="#9CA3AF" font-size="13">&bull; 1-Click DONE task toggling</text>
+    <text x="405" y="196" fill="#9CA3AF" font-size="13">&bull; Real-time TL notification</text>
+    <text x="405" y="218" fill="#9CA3AF" font-size="13">&bull; Formatted Excel download</text>
+
+    <!-- Notification Engine -->
+    <rect x="740" y="60" width="330" height="220" rx="14" fill="#111827" stroke="#EC4899" stroke-width="1.5" />
+    <rect x="760" y="75" width="125" height="24" rx="6" fill="#500724" stroke="#EC4899" stroke-width="1" />
+    <text x="770" y="91" fill="#F472B6" font-size="12" font-weight="700">🔔 Notifications</text>
+    <text x="760" y="125" fill="#FFFFFF" font-size="16" font-weight="700">Dynamic Alerts Bus</text>
+    <text x="760" y="152" fill="#9CA3AF" font-size="13">&bull; Live Top Nav Notification Bell</text>
+    <text x="760" y="174" fill="#9CA3AF" font-size="13">&bull; Dynamic sender &amp; actor names</text>
+    <text x="760" y="196" fill="#9CA3AF" font-size="13">&bull; Red glowing unread counter</text>
+    <text x="760" y="218" fill="#9CA3AF" font-size="13">&bull; Mark all read &amp; clear actions</text>
+
+    <!-- ProjectOS & QMS Gateways -->
+    <rect x="1095" y="60" width="315" height="220" rx="14" fill="#111827" stroke="#10B981" stroke-width="1.5" />
+    <rect x="1115" y="75" width="135" height="24" rx="6" fill="#064E3B" stroke="#10B981" stroke-width="1" />
+    <text x="1125" y="91" fill="#6EE7B7" font-size="12" font-weight="700">🚀 API Gateways</text>
+    <text x="1115" y="125" fill="#FFFFFF" font-size="16" font-weight="700">ProjectOS &amp; QMS</text>
+    <text x="1115" y="152" fill="#9CA3AF" font-size="13">&bull; /api/projects federation</text>
+    <text x="1115" y="174" fill="#9CA3AF" font-size="13">&bull; /api/projectos sync endpoints</text>
+    <text x="1115" y="196" fill="#9CA3AF" font-size="13">&bull; /api/qms/projects gateway</text>
+    <text x="1115" y="218" fill="#9CA3AF" font-size="13">&bull; Supabase project_erp sync</text>
+  </g>
+
+  <!-- Footer Banner -->
+  <g transform="translate(80, 2200)">
+    <rect x="0" y="0" width="1440" height="70" rx="12" fill="#111827" stroke="#1F2937" />
+    <text x="40" y="42" fill="#9CA3AF" font-size="14" font-weight="500">&copy; 2026 PJSOFONIC ERP Ecosystem &bull; Frontend: https://erp-pjsofonic.onrender.com &bull; Backend: https://pjsofonic-erp-backend.onrender.com &bull; QMS: https://pjsofonic-qms.onrender.com</text>
+  </g>
+</svg>

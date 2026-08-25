@@ -98,6 +98,9 @@ export default function DashboardPage() {
   // Deliverables / Reports Inspection Modal State
   const [inspectingProject, setInspectingProject] = useState<CrmCustomerProject | null>(null);
 
+  // Admin Tab Filter: ACTIVE vs COMPLETED vs ALL
+  const [adminTabFilter, setAdminTabFilter] = useState<'ACTIVE' | 'COMPLETED' | 'ALL'>('ACTIVE');
+
   const loadDashboardData = async () => {
     setLoading(true);
     try {
@@ -118,6 +121,22 @@ export default function DashboardPage() {
   useEffect(() => {
     loadDashboardData();
 
+    // Real-time polling every 8s to fetch CRM & Supabase projects dynamically
+    const pollInterval = setInterval(() => {
+      fetchCrmCustomerProjects()
+        .then((projects) => {
+          if (Array.isArray(projects) && projects.length > 0) {
+            setCrmProjects(projects);
+          }
+        })
+        .catch(() => {});
+    }, 8000);
+
+    const handleFocus = () => {
+      loadDashboardData();
+    };
+    window.addEventListener('focus', handleFocus);
+
     // Listen for storage and custom CRM update changes across tabs & profiles
     const handleStorage = (e: StorageEvent) => {
       if (e.key === 'pj_crm_active_projects' || e.key === 'pj_erp_tasks_store') {
@@ -132,6 +151,8 @@ export default function DashboardPage() {
     window.addEventListener('pj_crm_updated', handleCustomCrmUpdate);
 
     return () => {
+      clearInterval(pollInterval);
+      window.removeEventListener('focus', handleFocus);
       window.removeEventListener('storage', handleStorage);
       window.removeEventListener('pj_crm_updated', handleCustomCrmUpdate);
     };
@@ -1365,153 +1386,293 @@ export default function DashboardPage() {
       {/* ========================================================================= */}
       {/* 5. ADMIN CONTROL HUB: FULL AUDIT, ASSIGN TL & FINAL TOTAL APPROVAL */}
       {/* ========================================================================= */}
-      {isAdmin && (
-        <div className="p-6 rounded-3xl bg-gray-900/60 border border-gray-800 backdrop-blur-md space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-800 pb-4">
-            <div>
-              <span className="px-2.5 py-0.5 rounded bg-amber-500/10 text-amber-400 text-[10px] font-bold uppercase tracking-wider">
-                Admin Executive Command Hub
-              </span>
-              <h3 className="text-lg font-black text-white tracking-tight flex items-center gap-2 mt-1">
-                <Crown className="w-5 h-5 text-amber-400" /> All Customer Projects ({crmProjects.length})
-              </h3>
-              <p className="text-xs text-gray-400 mt-0.5">
-                Assign CRM projects to Team Leaders, review deliverables (4 Production + 3 QA reports), download reports, and grant Total Final Approval.
-              </p>
-            </div>
+      {isAdmin && (() => {
+        const adminActiveProjects = crmProjects.filter((p) => p.status !== 'COMPLETED' && p.stage !== 'COMPLETED');
+        const adminCompletedProjects = crmProjects.filter((p) => p.status === 'COMPLETED' || p.stage === 'COMPLETED');
 
-            <div className="flex items-center gap-2">
-              <Link
-                href="/projects"
-                className="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow flex items-center gap-1"
-              >
-                <span>Projects Page</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {crmProjects.map((p) => {
-              const isCompleted = p.status === 'COMPLETED';
-              const isReadyForAdmin = p.tlFinalSubmission?.submitted || p.stage === 'SUBMITTED_TO_ADMIN' || p.qualityReports?.qualityStatus === 'QUALITY_APPROVED';
-
-              return (
-                <div
-                  key={`admin-card-${p.id}`}
-                  className={`p-5 rounded-2xl bg-gray-950 border ${
-                    isCompleted
-                      ? 'border-emerald-500/50 bg-emerald-950/20 shadow-emerald-950/30'
-                      : isReadyForAdmin
-                      ? 'border-amber-500/40 shadow-amber-950/20'
-                      : 'border-gray-800'
-                  } space-y-3 flex flex-col justify-between`}
-                >
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-[11px] font-mono text-indigo-400 font-bold bg-indigo-500/10 px-2 py-0.5 rounded border border-indigo-500/20">
-                        {p.projectCode}
-                      </span>
-                      {isCompleted ? (
-                        <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[10px] font-black flex items-center gap-1">
-                          <CheckCircle2 className="w-3 h-3 text-emerald-400" /> ALL DONE / COMPLETED
-                        </span>
-                      ) : (
-                        <Badge variant={isReadyForAdmin ? 'warning' : 'info'}>
-                          {p.stage || (p.targetTeamLeadName ? 'ASSIGNED_TO_TL' : 'UNASSIGNED')}
-                        </Badge>
-                      )}
-                    </div>
-
-                    <h4 className="text-base font-bold text-white">{p.projectName}</h4>
-                    <p className="text-xs text-gray-400">Client: {p.customerName} (${p.budget?.toLocaleString()})</p>
-
-                    <div className="mt-3 p-3 rounded-xl bg-gray-900 border border-gray-800 text-xs space-y-1.5">
-                      <div className="flex items-center justify-between">
-                        <span className="text-gray-400">Team Leader:</span>
-                        <span className="font-bold text-amber-400 truncate max-w-[160px]">
-                          {p.targetTeamLeadName || 'Not Assigned'}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-gray-400">Engineer:</span>
-                        <span className="font-bold text-cyan-400 truncate max-w-[160px]">
-                          {p.assignedEngineerName || 'Pending TL Assign'}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2 pt-1 border-t border-gray-800/80">
-                        <span className={`text-[10px] font-bold ${p.productionDeliverables?.implementationPlan ? 'text-emerald-400' : 'text-gray-500'}`}>
-                          {p.productionDeliverables?.implementationPlan ? '✓ 4 Deliverables' : '○ Deliverables'}
-                        </span>
-                        <span>•</span>
-                        <span className={`text-[10px] font-bold ${p.qualityReports?.qualityStatus === 'QUALITY_APPROVED' ? 'text-emerald-400' : 'text-gray-500'}`}>
-                          {p.qualityReports?.qualityStatus === 'QUALITY_APPROVED' ? '✓ QA Approved' : '○ QA Pending'}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="pt-3 border-t border-gray-800 flex flex-col gap-2">
-                    {/* Admin Action: Assign / Change Team Leader */}
-                    {!isCompleted && (
-                      <button
-                        onClick={() => {
-                          setAssigningTlProject(p);
-                          setSelectedTlIdForAssign(p.targetTeamLeadId || activeTlOptions[0]?.id || '');
-                        }}
-                        className="w-full py-2 rounded-xl bg-gray-900 hover:bg-gray-800 text-amber-400 hover:text-amber-300 font-bold text-xs border border-gray-800 flex items-center justify-center gap-1.5 transition-all shadow"
-                      >
-                        <Crown className="w-3.5 h-3.5 text-amber-400" />
-                        <span>{p.targetTeamLeadName ? 'Change Team Leader' : 'Assign Team Leader'}</span>
-                      </button>
-                    )}
-
-                    {/* Reports Downloads */}
-                    <div className="flex items-center justify-between gap-2">
-                      <button
-                        onClick={() => exportProjectReportToPdf(p)}
-                        className="flex-1 py-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white font-bold text-[11px] flex items-center justify-center gap-1 border border-gray-700"
-                      >
-                        <Download className="w-3.5 h-3.5" /> PDF Report
-                      </button>
-
-                      <button
-                        onClick={() => exportProjectReportToExcel(p)}
-                        className="flex-1 py-1.5 rounded-lg bg-emerald-950 hover:bg-emerald-900 text-emerald-400 font-bold text-[11px] flex items-center justify-center gap-1 border border-emerald-800"
-                      >
-                        <FileSpreadsheet className="w-3.5 h-3.5" /> Excel Report
-                      </button>
-
-                      <button
-                        onClick={() => setInspectingProject(p)}
-                        className="p-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700"
-                        title="Inspect"
-                      >
-                        <Eye className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-
-                    {/* Final Total Approval Button */}
-                    {!isCompleted ? (
-                      <button
-                        onClick={() => handleAdminFinalApproval(p)}
-                        className="w-full py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-indigo-600 hover:from-emerald-500 hover:to-indigo-500 text-white font-black text-xs shadow-lg flex items-center justify-center gap-1.5"
-                      >
-                        <CheckCircle2 className="w-4 h-4" />
-                        <span>Grant Final Total Project Approval</span>
-                      </button>
-                    ) : (
-                      <div className="py-2 text-center rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-black">
-                        ✓ APPROVED & COMPLETED
-                      </div>
-                    )}
-                  </div>
+        return (
+          <div className="space-y-6">
+            {/* Section A: Active Projects */}
+            <div className="p-6 rounded-3xl bg-gray-900/60 border border-gray-800 backdrop-blur-md space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-800 pb-4">
+                <div>
+                  <span className="px-2.5 py-0.5 rounded bg-amber-500/10 text-amber-400 text-[10px] font-bold uppercase tracking-wider">
+                    Admin Executive Command Hub
+                  </span>
+                  <h3 className="text-lg font-black text-white tracking-tight flex items-center gap-2 mt-1">
+                    <Crown className="w-5 h-5 text-amber-400" /> Active &amp; Ongoing Projects ({adminActiveProjects.length})
+                  </h3>
+                  <p className="text-xs text-gray-400 mt-0.5">
+                    Live production pipeline. Assign CRM projects to Team Leaders, review deliverables, and grant Final Total Approval.
+                  </p>
                 </div>
-              );
-            })}
+
+                {/* Filter Tabs & Quick Action */}
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => loadDashboardData()}
+                    className="p-2 rounded-xl bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs border border-gray-700 flex items-center gap-1 transition-all"
+                    title="Refresh Live Projects"
+                  >
+                    <RefreshCw className="w-3.5 h-3.5" />
+                    <span>Sync</span>
+                  </button>
+
+                  <Link
+                    href="/projects"
+                    className="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow flex items-center gap-1"
+                  >
+                    <span>Projects Page</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </Link>
+                </div>
+              </div>
+
+              {adminActiveProjects.length === 0 ? (
+                <EmptyState
+                  icon={FolderKanban}
+                  title="No Active Ongoing Projects"
+                  description="All projects have been completed or no new projects are currently in the active pipeline."
+                  actionLabel="Go to Projects Page"
+                  onAction={() => (window.location.href = '/projects')}
+                />
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                  {adminActiveProjects.map((p) => {
+                    const isReadyForAdmin =
+                      p.tlFinalSubmission?.submitted ||
+                      p.stage === 'SUBMITTED_TO_ADMIN' ||
+                      p.qualityReports?.qualityStatus === 'QUALITY_APPROVED';
+
+                    return (
+                      <div
+                        key={`admin-active-${p.id}`}
+                        className={`p-5 rounded-2xl bg-gray-950 border ${
+                          isReadyForAdmin
+                            ? 'border-amber-500/40 shadow-amber-950/20'
+                            : 'border-gray-800'
+                        } space-y-3 flex flex-col justify-between`}
+                      >
+                        <div>
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-[11px] font-mono text-indigo-400 font-bold bg-indigo-500/10 px-2 py-0.5 rounded border border-indigo-500/20">
+                              {p.projectCode}
+                            </span>
+                            <Badge variant={isReadyForAdmin ? 'warning' : 'info'}>
+                              {p.stage || (p.targetTeamLeadName ? 'ASSIGNED_TO_TL' : 'UNASSIGNED')}
+                            </Badge>
+                          </div>
+
+                          <h4 className="text-base font-bold text-white">{p.projectName}</h4>
+                          <p className="text-xs text-gray-400">
+                            Client: {p.customerName} (${p.budget?.toLocaleString()})
+                          </p>
+
+                          <div className="mt-3 p-3 rounded-xl bg-gray-900 border border-gray-800 text-xs space-y-1.5">
+                            <div className="flex items-center justify-between">
+                              <span className="text-gray-400">Team Leader:</span>
+                              <span className="font-bold text-amber-400 truncate max-w-[160px]">
+                                {p.targetTeamLeadName || 'Not Assigned'}
+                              </span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <span className="text-gray-400">Engineer:</span>
+                              <span className="font-bold text-cyan-400 truncate max-w-[160px]">
+                                {p.assignedEngineerName || 'Pending TL Assign'}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2 pt-1 border-t border-gray-800/80">
+                              <span
+                                className={`text-[10px] font-bold ${
+                                  p.productionDeliverables?.implementationPlan
+                                    ? 'text-emerald-400'
+                                    : 'text-gray-500'
+                                }`}
+                              >
+                                {p.productionDeliverables?.implementationPlan
+                                  ? '✓ 4 Deliverables'
+                                  : '○ Deliverables'}
+                              </span>
+                              <span>•</span>
+                              <span
+                                className={`text-[10px] font-bold ${
+                                  p.qualityReports?.qualityStatus === 'QUALITY_APPROVED'
+                                    ? 'text-emerald-400'
+                                    : 'text-gray-500'
+                                }`}
+                              >
+                                {p.qualityReports?.qualityStatus === 'QUALITY_APPROVED'
+                                  ? '✓ QA Approved'
+                                  : '○ QA Pending'}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="pt-3 border-t border-gray-800 flex flex-col gap-2">
+                          {/* Admin Action: Assign / Change Team Leader */}
+                          <button
+                            onClick={() => {
+                              setAssigningTlProject(p);
+                              setSelectedTlIdForAssign(
+                                p.targetTeamLeadId || activeTlOptions[0]?.id || ''
+                              );
+                            }}
+                            className="w-full py-2 rounded-xl bg-gray-900 hover:bg-gray-800 text-amber-400 hover:text-amber-300 font-bold text-xs border border-gray-800 flex items-center justify-center gap-1.5 transition-all shadow"
+                          >
+                            <Crown className="w-3.5 h-3.5 text-amber-400" />
+                            <span>
+                              {p.targetTeamLeadName ? 'Change Team Leader' : 'Assign Team Leader'}
+                            </span>
+                          </button>
+
+                          {/* Reports Downloads */}
+                          <div className="flex items-center justify-between gap-2">
+                            <button
+                              onClick={() => exportProjectReportToPdf(p)}
+                              className="flex-1 py-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white font-bold text-[11px] flex items-center justify-center gap-1 border border-gray-700"
+                            >
+                              <Download className="w-3.5 h-3.5" /> PDF Report
+                            </button>
+
+                            <button
+                              onClick={() => exportProjectReportToExcel(p)}
+                              className="flex-1 py-1.5 rounded-lg bg-emerald-950 hover:bg-emerald-900 text-emerald-400 font-bold text-[11px] flex items-center justify-center gap-1 border border-emerald-800"
+                            >
+                              <FileSpreadsheet className="w-3.5 h-3.5" /> Excel Report
+                            </button>
+
+                            <button
+                              onClick={() => setInspectingProject(p)}
+                              className="p-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700"
+                              title="Inspect"
+                            >
+                              <Eye className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+
+                          {/* Final Total Approval Button */}
+                          <button
+                            onClick={() => handleAdminFinalApproval(p)}
+                            className="w-full py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-indigo-600 hover:from-emerald-500 hover:to-indigo-500 text-white font-black text-xs shadow-lg flex items-center justify-center gap-1.5 transition-all"
+                          >
+                            <CheckCircle2 className="w-4 h-4" />
+                            <span>Grant Final Total Project Approval</span>
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Section B: Completed & Archived Projects */}
+            <div className="p-6 rounded-3xl bg-emerald-950/20 border border-emerald-500/30 backdrop-blur-md space-y-6 shadow-xl shadow-emerald-950/10">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-emerald-500/20 pb-4">
+                <div>
+                  <span className="px-2.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px] font-black uppercase tracking-wider border border-emerald-500/30">
+                    Archive &amp; Approved Dossiers
+                  </span>
+                  <h3 className="text-lg font-black text-white tracking-tight flex items-center gap-2 mt-1">
+                    <CheckCircle2 className="w-5 h-5 text-emerald-400" /> Completed Projects ({adminCompletedProjects.length})
+                  </h3>
+                  <p className="text-xs text-emerald-200/70 mt-0.5">
+                    Fully delivered customer projects with verified 4 engineering deliverables, 3 QA reports, and executive admin sign-off.
+                  </p>
+                </div>
+              </div>
+
+              {adminCompletedProjects.length === 0 ? (
+                <div className="py-8 text-center bg-gray-950/40 rounded-2xl border border-dashed border-emerald-500/20 text-xs text-gray-400">
+                  <p className="font-semibold text-gray-300">No Projects Completed Yet</p>
+                  <p className="text-[11px] mt-1 text-gray-500">
+                    When you grant &apos;Final Total Approval&apos; on any active project above, it will automatically move here.
+                  </p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                  {adminCompletedProjects.map((p) => (
+                    <div
+                      key={`admin-completed-${p.id}`}
+                      className="p-5 rounded-2xl bg-gray-950 border border-emerald-500/40 bg-emerald-950/10 shadow-lg shadow-emerald-950/30 space-y-3 flex flex-col justify-between"
+                    >
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-[11px] font-mono text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                            {p.projectCode}
+                          </span>
+                          <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[10px] font-black flex items-center gap-1">
+                            <CheckCircle2 className="w-3 h-3 text-emerald-400" /> ALL DONE / COMPLETED
+                          </span>
+                        </div>
+
+                        <h4 className="text-base font-bold text-white">{p.projectName}</h4>
+                        <p className="text-xs text-gray-400">
+                          Client: {p.customerName} (${p.budget?.toLocaleString()})
+                        </p>
+
+                        <div className="mt-3 p-3 rounded-xl bg-gray-900/80 border border-emerald-500/20 text-xs space-y-1.5">
+                          <div className="flex items-center justify-between">
+                            <span className="text-gray-400">Team Leader:</span>
+                            <span className="font-bold text-amber-400 truncate max-w-[160px]">
+                              {p.targetTeamLeadName || 'Not Assigned'}
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-gray-400">Engineer:</span>
+                            <span className="font-bold text-cyan-400 truncate max-w-[160px]">
+                              {p.assignedEngineerName || 'Full Stack Staff'}
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between pt-1 border-t border-gray-800">
+                            <span className="text-gray-400">Approved By:</span>
+                            <span className="font-bold text-emerald-400">
+                              {p.adminFinalApproval?.approvedBy || user.fullName}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="pt-3 border-t border-emerald-500/20 flex flex-col gap-2">
+                        {/* Reports Downloads */}
+                        <div className="flex items-center justify-between gap-2">
+                          <button
+                            onClick={() => exportProjectReportToPdf(p)}
+                            className="flex-1 py-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-200 hover:text-white font-bold text-[11px] flex items-center justify-center gap-1 border border-gray-700"
+                          >
+                            <Download className="w-3.5 h-3.5" /> PDF Dossier
+                          </button>
+
+                          <button
+                            onClick={() => exportProjectReportToExcel(p)}
+                            className="flex-1 py-1.5 rounded-lg bg-emerald-950 hover:bg-emerald-900 text-emerald-300 font-bold text-[11px] flex items-center justify-center gap-1 border border-emerald-800"
+                          >
+                            <FileSpreadsheet className="w-3.5 h-3.5" /> Excel Sheet
+                          </button>
+
+                          <button
+                            onClick={() => setInspectingProject(p)}
+                            className="p-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700"
+                            title="Inspect Dossier"
+                          >
+                            <Eye className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+
+                        <div className="py-2 text-center rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-black flex items-center justify-center gap-1.5">
+                          <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                          <span>PROJECT COMPLETED &amp; SIGNED OFF</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* ========================================================================= */}
       {/* MODALS */}

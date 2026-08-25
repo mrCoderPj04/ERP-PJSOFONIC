@@ -34,6 +34,29 @@ export default function LoginPage() {
 
       if (authRes.user) {
         login(authRes.user, authRes.token || 'ems-live-token');
+
+        // Seamlessly authenticate with CRM backend API to enable live project sync
+        try {
+          fetch('https://pjsofonic-crm-backend.onrender.com/api/v1/auth/ems-login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              login_id: employeeIdOrEmail,
+              email: employeeIdOrEmail.includes('@') ? employeeIdOrEmail : undefined,
+              employeeId: !employeeIdOrEmail.includes('@') ? employeeIdOrEmail : undefined,
+              password: password,
+              ems_token: authRes.token,
+              ems_user_payload: authRes.user,
+            }),
+          })
+            .then((r) => r.json())
+            .then((crmAuth) => {
+              if (crmAuth && (crmAuth.access_token || crmAuth.token)) {
+                localStorage.setItem('pj_crm_token', crmAuth.access_token || crmAuth.token);
+              }
+            })
+            .catch(() => {});
+        } catch (e) {}
       }
 
       setStep('SUCCESS');

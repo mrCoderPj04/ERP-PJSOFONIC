@@ -167,6 +167,22 @@ export default function ProjectsPage() {
   useEffect(() => {
     loadLiveData();
 
+    // Polling every 8s for live real-time sync with CRM and Supabase
+    const pollInterval = setInterval(() => {
+      fetchCrmCustomerProjects()
+        .then((projects) => {
+          if (Array.isArray(projects) && projects.length > 0) {
+            setCrmProjects(projects);
+          }
+        })
+        .catch(() => {});
+    }, 8000);
+
+    const handleFocus = () => {
+      loadLiveData();
+    };
+    window.addEventListener('focus', handleFocus);
+
     // Auto-fetch & live sync whenever projects are assigned or updated across tabs/profiles
     const handleStorage = (e: StorageEvent) => {
       if (e.key === 'pj_crm_active_projects') {
@@ -181,6 +197,8 @@ export default function ProjectsPage() {
     window.addEventListener('pj_crm_updated', handleCrmUpdate);
 
     return () => {
+      clearInterval(pollInterval);
+      window.removeEventListener('focus', handleFocus);
       window.removeEventListener('storage', handleStorage);
       window.removeEventListener('pj_crm_updated', handleCrmUpdate);
     };

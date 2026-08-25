@@ -27,18 +27,117 @@ Enterprise Resource Planning (ERP) platform frontend for **PJSOFONIC Enterprise 
 
 ---
 
-## 🔄 Multi-Department Project Execution Lifecycle
+## 📊 End-to-End Master Workflow Diagram
 
 ```mermaid
-graph LR
-    A[Admin / CRM] -->|Assigns Team Leader| B(Team Leader Dashboard)
-    B -->|Assigns Project| C(Full Stack Engineer)
-    C -->|Uploads 4 Deliverables| B
-    B -->|Approves Production| D(Quality Assurance Hub & QMS)
-    D -->|Submits 3 QA Reports & Approves| B
-    B -->|Submits All Done| A
-    A -->|Final Total Approval| E[COMPLETED Across All Profiles]
+flowchart TD
+    %% 1. AUTHENTICATION (Left Box)
+    subgraph S1 ["🔐 1. Authentication & EMS Identity Gateway"]
+        direction TB
+        AUTH_IN["Staff Login Screen (/login)<br/>(Employee ID / Email + Password)"]
+        EMS_AUTH["EMS Backend Auth API<br/>(https://erp-backend-1-02lc.onrender.com)"]
+        ROLE_CHECK{"Role & Department<br/>Classification"}
+        ROLE_A["👑 ADMIN<br/>(Portfolio & Approvals)"]
+        ROLE_TL["👑 TEAM LEADER<br/>(Dual Workbench)"]
+        ROLE_FS["💻 FULL STACK<br/>(4 Deliverables)"]
+        ROLE_QA["🛡️ QUALITY / QA<br/>(3 Reports & QMS)"]
+
+        AUTH_IN --> EMS_AUTH
+        EMS_AUTH --> ROLE_CHECK
+        ROLE_CHECK --> ROLE_A
+        ROLE_CHECK --> ROLE_TL
+        ROLE_CHECK --> ROLE_FS
+        ROLE_CHECK --> ROLE_QA
+    end
+
+    %% 2. STAGE 1 (Center Top Box)
+    subgraph S2 ["👑 2. Stage 1: Project Creation & Dispatch"]
+        direction TB
+        CRM_IN["CRM Customer Projects Ingestion<br/>(https://pjsofonic-crm-backend.onrender.com)"]
+        ADMIN_MANUAL["Admin Manual Project Creation Desk<br/>(Projects Desk /projects)"]
+        ADMIN_HUB["Admin Project Master Control Desk<br/>(Ingests client scope & budget)"]
+        SELECT_TL["Select Department Team Leader<br/>(Registered EMS Team Leaders Dropdown)"]
+        NOTIF_1["🔔 Real-Time System Notification Sent<br/>('[Admin] assigned project to you')"]
+
+        CRM_IN --> ADMIN_HUB
+        ADMIN_MANUAL --> ADMIN_HUB
+        ADMIN_HUB --> SELECT_TL
+        SELECT_TL --> NOTIF_1
+    end
+
+    %% 3. STAGE 2 (Center Upper Box)
+    subgraph S3 ["💻 3. Stage 2: Team Leader Execution & 4 Deliverables"]
+        direction TB
+        TL_DASH["Team Leader Assigned Projects Workbench<br/>(Dashboard 'Assigned Projects')"]
+        ASSIGN_FS["TL Assigns to Full Stack Engineer<br/>([FS ID] Full Name)"]
+        NOTIF_2["🔔 Real-Time Notification Dispatched<br/>('[TL Name] assigned project to you')"]
+        FS_DESK["Full Stack Engineer Workspace Desk"]
+        UPLOAD_DELIV["Upload 4 Required Deliverables:<br/>1. 📑 Implementation Plan (Architecture & DB)<br/>2. 🖼️ Logo Image Asset URL<br/>3. 📝 Walkthrough Guide (Setup & Tests)<br/>4. 📊 Workflow Architecture Chart"]
+        TL_REVIEW["TL Production Review & Approval<br/>(Clicks 'Approve & Send to Quality')"]
+        SENT_TO_QA["Status: SENT_TO_QUALITY"]
+
+        TL_DASH --> ASSIGN_FS
+        ASSIGN_FS --> NOTIF_2
+        NOTIF_2 --> FS_DESK
+        FS_DESK --> UPLOAD_DELIV
+        UPLOAD_DELIV --> TL_REVIEW
+        TL_REVIEW --> SENT_TO_QA
+    end
+
+    %% 4. STAGE 3 (Center Lower Box)
+    subgraph S4 ["🛡️ 4. Stage 3: Quality Assurance & QMS Testing Platform"]
+        direction TB
+        QA_QUEUE["Quality Assurance Testing Queue<br/>(Live at /quality & /api/qms/projects)"]
+        BTN_1["🔘 Button 1: Submit 3 QA Reports<br/>(Bug, Test & Quality Report Grade A+)"]
+        BTN_2["🔘 Button 2: Approve Report<br/>(Marks status: QUALITY_APPROVED)"]
+        BTN_3["🔘 Button 3: Test Project (QMS)<br/>(Opens https://pjsofonic-qms.onrender.com)"]
+        QA_VERIFIED["Quality Sign-off Granted & Verified"]
+        NOTIF_3["🔔 Real-Time Notification Fired<br/>('QA approved reports for project')"]
+
+        QA_QUEUE --> BTN_1
+        QA_QUEUE --> BTN_2
+        QA_QUEUE --> BTN_3
+        BTN_1 --> QA_VERIFIED
+        BTN_2 --> QA_VERIFIED
+        BTN_3 --> QA_VERIFIED
+        QA_VERIFIED --> NOTIF_3
+    end
+
+    %% 5. STAGE 4 (Center Bottom Box)
+    subgraph S5 ["🏁 5. Stage 4: Final Sign-Off & Project Closure"]
+        direction TB
+        TL_QA_SEC["Team Leader Quality Review Workbench<br/>(Reviews verified 3 QA Reports)"]
+        TL_SUBMIT_DONE["TL Clicks 'Project All Done'<br/>(Status: SUBMITTED_TO_ADMIN)"]
+        ADMIN_FINAL["Admin Final Review Command Desk"]
+        ADMIN_TOTAL_APP["Admin Grants Final Total Approval"]
+        PROJECT_COMPLETED["🎉 Project Marked COMPLETED (🟢)<br/>(Across all user profiles & databases)"]
+        EXPORTS["📊 Instant Dossier Exports & Archive<br/>• Project Dossier PDF • Project Data Excel • Timesheets Excel"]
+
+        TL_QA_SEC --> TL_SUBMIT_DONE
+        TL_SUBMIT_DONE --> ADMIN_FINAL
+        ADMIN_FINAL --> ADMIN_TOTAL_APP
+        ADMIN_TOTAL_APP --> PROJECT_COMPLETED
+        PROJECT_COMPLETED --> EXPORTS
+    end
+
+    %% 6. SHARED SERVICES (Right Box)
+    subgraph S6 ["⚡ 6. Real-Time Shared Ecosystem Services"]
+        direction LR
+        CHAT_HUB["💬 Chat Hub<br/>• Team & Direct DM"]
+        TIMESHEET["⏱️ Timesheet<br/>• 1-Click DONE"]
+        NOTIF_ENGINE["🔔 Alerts Bus<br/>• Dynamic Names"]
+        GATEWAYS["🚀 Gateways<br/>• ProjectOS & QMS"]
+    end
+
+    %% Main Vertical Sequence
+    S2 --> S3
+    S3 --> S4
+    S4 --> S5
 ```
+
+---
+
+## 🔄 Multi-Department Roles & Responsibilities
 
 ### 1. 👑 Admin Command Hub
 - Ingests active customer projects directly from CRM.
@@ -111,6 +210,9 @@ Live notification engine synchronized across all profiles with dynamic employee 
 ```env
 NEXT_PUBLIC_BACKEND_URL="https://pjsofonic-erp-backend.onrender.com/api"
 NEXT_PUBLIC_CRM_API_BASE="https://pjsofonic-crm-backend.onrender.com"
+NEXT_PUBLIC_EMS_API_BASE="https://erp-backend-1-02lc.onrender.com/api"
+NEXT_PUBLIC_PROJECTOS_API_BASE="https://sofo-projectos.onrender.com"
+NEXT_PUBLIC_QMS_API_BASE="https://pjsofonic-qms.onrender.com"
 NEXT_PUBLIC_SUPABASE_URL="https://ffauweryjzpnskdaqcyp.supabase.co"
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY="sb_publishable_bLkboY3aqcA-LRqg7VROgw_IjxTh84f"
 ```

@@ -342,7 +342,7 @@ export function approveAdminFinal(
 }
 
 /**
- * Ingests live customer projects from all sources
+ * Ingests live customer projects from all sources in real-time
  */
 export async function fetchCrmCustomerProjects(): Promise<CrmCustomerProject[]> {
   const projectMap = new Map<string, CrmCustomerProject>();
@@ -351,9 +351,14 @@ export async function fetchCrmCustomerProjects(): Promise<CrmCustomerProject[]> 
   try {
     let token = '';
     if (typeof window !== 'undefined') {
-      token = localStorage.getItem('pj_crm_token') || localStorage.getItem('pj_ems_token') || '';
+      token =
+        localStorage.getItem('pj_crm_token') ||
+        localStorage.getItem('pj_ems_token') ||
+        '';
     }
-    const headers: Record<string, string> = {};
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
     }
@@ -385,9 +390,12 @@ export async function fetchCrmCustomerProjects(): Promise<CrmCustomerProject[]> 
           const dept = safeString(p.project_type || p.departmentScope || p.department || 'Software Engineering');
           const tlId = p.target_team_lead_id || p.targetTeamLeadId ? safeString(p.target_team_lead_id || p.targetTeamLeadId) : undefined;
           const tlName = p.target_team_lead_name || p.targetTeamLeadName || p.target_team_lead ? safeString(p.target_team_lead_name || p.targetTeamLeadName || p.target_team_lead) : undefined;
+          const reqs = safeString(p.overview || p.requirements_html || p.requirements || p.description || 'Customer project scope submitted via CRM.');
+          const budgetVal = Number(p.budget || p.estimated_cost || p.estimatedCost) || 0;
+          const isDone = p.status === 'COMPLETED' || p.stage === 'COMPLETED';
 
           projectMap.set(code, {
-            id: safeString(p.id || p._id || `crm-proj-${Date.now()}`),
+            id: safeString(p.id ? String(p.id) : (p._id || `crm-proj-${Date.now()}`)),
             projectCode: code,
             projectName: safeString(p.title || p.projectName || p.name || 'CRM Customer Project'),
             customerName: clientName,
@@ -395,10 +403,10 @@ export async function fetchCrmCustomerProjects(): Promise<CrmCustomerProject[]> 
             departmentScope: dept,
             targetTeamLeadId: tlId,
             targetTeamLeadName: tlName,
-            requirements: safeString(p.overview || p.requirements_html || p.requirements || p.description || 'Customer project scope submitted via CRM.'),
-            budget: Number(p.budget || p.estimated_cost || p.estimatedCost) || 0,
-            status: p.status === 'COMPLETED' ? 'COMPLETED' : (p.status === 'APPROVED' ? 'working' : (p.status || 'working')),
-            stage: p.status === 'COMPLETED' ? 'COMPLETED' : 'ASSIGNED_TO_TL',
+            requirements: reqs,
+            budget: budgetVal,
+            status: isDone ? 'COMPLETED' : (p.status === 'APPROVED' ? 'working' : (p.status || 'working')),
+            stage: isDone ? 'COMPLETED' : (p.stage || (tlName ? 'ASSIGNED_TO_TL' : 'ADMIN_CREATED')),
             approvalStatus: 'APPROVED',
             createdAt: safeString(p.created_at || p.createdAt || new Date().toISOString()),
           });
@@ -412,7 +420,14 @@ export async function fetchCrmCustomerProjects(): Promise<CrmCustomerProject[]> 
   // 2. Fetch live projects from Express Backend API
   try {
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://pjsofonic-erp-backend.onrender.com/api';
-    const expressRes = await fetch(`${backendUrl}/crm/projects`, { cache: 'no-store' });
+    let token = '';
+    if (typeof window !== 'undefined') {
+      token = localStorage.getItem('pj_ems_token') || localStorage.getItem('pj_crm_token') || '';
+    }
+    const headers: Record<string, string> = {};
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    const expressRes = await fetch(`${backendUrl}/crm/projects`, { headers, cache: 'no-store' });
     if (expressRes.ok) {
       const data = await expressRes.json();
       const list = data.projects || data.data || (Array.isArray(data) ? data : []);
@@ -420,6 +435,7 @@ export async function fetchCrmCustomerProjects(): Promise<CrmCustomerProject[]> 
         list.forEach((p: any) => {
           const code = safeString(p.projectCode || p.code || p.project_code || `CRM-${p.id}`);
           if (!projectMap.has(code)) {
+            const isDone = p.status === 'COMPLETED' || p.stage === 'COMPLETED';
             projectMap.set(code, {
               id: safeString(p.id || `crm-${Date.now()}`),
               projectCode: code,
@@ -431,8 +447,8 @@ export async function fetchCrmCustomerProjects(): Promise<CrmCustomerProject[]> 
               targetTeamLeadName: p.targetTeamLeadName ? safeString(p.targetTeamLeadName) : undefined,
               requirements: safeString(p.requirements || p.description || 'Customer project scope submitted via CRM.'),
               budget: Number(p.budget) || 0,
-              status: p.status === 'COMPLETED' ? 'COMPLETED' : (p.status || 'working'),
-              stage: p.stage || (p.status === 'COMPLETED' ? 'COMPLETED' : 'ASSIGNED_TO_TL'),
+              status: isDone ? 'COMPLETED' : (p.status || 'working'),
+              stage: isDone ? 'COMPLETED' : (p.stage || 'ASSIGNED_TO_TL'),
               approvalStatus: 'APPROVED',
               productionDeliverables: p.productionDeliverables,
               tlProductionApproval: p.tlProductionApproval,
@@ -454,6 +470,7 @@ export async function fetchCrmCustomerProjects(): Promise<CrmCustomerProject[]> 
       supaProjects.forEach((p: any) => {
         const code = safeString(p.project_code || p.projectCode || p.code || `CRM-${p.id}`);
         if (!projectMap.has(code)) {
+          const isDone = p.status === 'COMPLETED' || p.stage === 'COMPLETED';
           projectMap.set(code, {
             id: safeString(p.id || `supa-${Date.now()}`),
             projectCode: code,
@@ -465,8 +482,8 @@ export async function fetchCrmCustomerProjects(): Promise<CrmCustomerProject[]> 
             targetTeamLeadName: p.target_team_lead_name ? safeString(p.target_team_lead_name) : (p.targetTeamLeadName ? safeString(p.targetTeamLeadName) : undefined),
             requirements: safeString(p.requirements || p.description || 'Approved project scope from CRM.'),
             budget: Number(p.budget) || 0,
-            status: p.status === 'COMPLETED' ? 'COMPLETED' : (p.status || 'working'),
-            stage: p.status === 'COMPLETED' ? 'COMPLETED' : 'ASSIGNED_TO_TL',
+            status: isDone ? 'COMPLETED' : (p.status || 'working'),
+            stage: isDone ? 'COMPLETED' : 'ASSIGNED_TO_TL',
             approvalStatus: 'APPROVED',
             createdAt: safeString(p.created_at || p.createdAt || new Date().toISOString()),
           });
@@ -479,8 +496,28 @@ export async function fetchCrmCustomerProjects(): Promise<CrmCustomerProject[]> 
 
   // 4. Ingest locally stored active projects (preserves all deliverables & multi-stage status)
   const storedProjects = getStoredCrmProjects();
-  storedProjects.forEach((p) => {
-    projectMap.set(p.projectCode, p);
+  storedProjects.forEach((stored) => {
+    const existing = projectMap.get(stored.projectCode);
+    if (existing) {
+      // Merge local progress on top of remote project
+      projectMap.set(stored.projectCode, {
+        ...existing,
+        ...stored,
+        status: stored.status || existing.status,
+        stage: stored.stage || existing.stage,
+        targetTeamLeadId: stored.targetTeamLeadId || existing.targetTeamLeadId,
+        targetTeamLeadName: stored.targetTeamLeadName || existing.targetTeamLeadName,
+        assignedEngineerId: stored.assignedEngineerId || existing.assignedEngineerId,
+        assignedEngineerName: stored.assignedEngineerName || existing.assignedEngineerName,
+        productionDeliverables: stored.productionDeliverables || existing.productionDeliverables,
+        tlProductionApproval: stored.tlProductionApproval || existing.tlProductionApproval,
+        qualityReports: stored.qualityReports || existing.qualityReports,
+        tlFinalSubmission: stored.tlFinalSubmission || existing.tlFinalSubmission,
+        adminFinalApproval: stored.adminFinalApproval || existing.adminFinalApproval,
+      });
+    } else {
+      projectMap.set(stored.projectCode, stored);
+    }
   });
 
   // Filter out legacy test project codes
