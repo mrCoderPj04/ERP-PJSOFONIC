@@ -38,8 +38,10 @@ export async function GET(req: Request) {
         const code = p.projectCode || p.code || p.project_code || `CRM-${p.id || p._id}`;
         if (!map.has(code)) {
           const isDone = p.status === 'COMPLETED' || p.stage === 'COMPLETED';
+          const projId = p.id ? String(p.id) : (p._id || `crm-${Date.now()}`);
           map.set(code, {
-            id: p.id ? String(p.id) : (p._id || `crm-${Date.now()}`),
+            id: projId,
+            crmProjectId: p.id || p.crmProjectId || p.crm_project_id,
             projectCode: code,
             projectName: p.title || p.projectName || p.name || 'CRM Customer Project',
             customerName: (p.customer && (p.customer.name || p.customer.company)) || p.company_name || p.customerName || p.clientName || 'CRM Client',
@@ -52,6 +54,12 @@ export async function GET(req: Request) {
             status: isDone ? 'COMPLETED' : (p.status === 'APPROVED' ? 'IN_PROGRESS' : p.status || 'working'),
             stage: isDone ? 'COMPLETED' : (p.stage || 'ASSIGNED_TO_TL'),
             approvalStatus: 'APPROVED',
+            handoverPdfUrl: p.handoverPdfUrl || p.handover_pdf_url || `/api/v1/projects/${projId}/handover-pdf`,
+            handoverPdfByCodeUrl: p.handoverPdfByCodeUrl || p.handover_pdf_by_code_url || `/api/v1/projects/code/${code}/handover-pdf`,
+            handoverDocApiUrl: p.handoverDocApiUrl || p.handover_doc_api_url || `/api/v1/projects/code/${code}/handover-document`,
+            handoverDocument: p.handoverDocument || p.handover_document,
+            agencySignoff: p.agencySignoff || p.agency_signoff,
+            clientSignoff: p.clientSignoff || p.client_signoff,
             createdAt: p.created_at || p.createdAt || new Date().toISOString(),
           });
         }

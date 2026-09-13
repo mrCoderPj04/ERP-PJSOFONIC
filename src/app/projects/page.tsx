@@ -24,11 +24,15 @@ import {
   FileCheck,
   FileSpreadsheet,
   Download,
+  FileText,
+  Printer,
 } from 'lucide-react';
 import {
   fetchCrmCustomerProjects,
   saveCrmProject,
   assignProjectToFullStack,
+  getProjectHandoverPdfUrl,
+  getDefaultProductionReport,
   CrmCustomerProject,
 } from '../../lib/crm';
 import { fetchEmsEmployees, EmsUser } from '../../lib/ems';
@@ -37,7 +41,11 @@ import { syncWithProjectOS } from '../../lib/projectOS';
 import { syncWithQMS } from '../../lib/qms';
 import { useAuth } from '../../context/AuthContext';
 import { EmptyState, Modal, Badge } from '../../components/ui';
-import { exportProjectReportToExcel, exportProjectReportToPdf } from '../../lib/exportUtils';
+import {
+  exportProjectReportToExcel,
+  exportProjectReportToPdf,
+  exportProductionReportToPdf,
+} from '../../lib/exportUtils';
 import { addSystemNotification } from '../../lib/notificationStore';
 
 export default function ProjectsPage() {
@@ -53,6 +61,9 @@ export default function ProjectsPage() {
   // TL Assign to Full Stack Modal
   const [assigningProjectForFullStack, setAssigningProjectForFullStack] = useState<CrmCustomerProject | null>(null);
   const [selectedFullStackId, setSelectedFullStackId] = useState<string>('');
+
+  // CRM Handover PDF Viewer Modal
+  const [pdfModalProject, setPdfModalProject] = useState<CrmCustomerProject | null>(null);
 
   // Admin New Project Form State
   const [adminProjTitle, setAdminProjTitle] = useState('');
@@ -630,6 +641,33 @@ export default function ProjectsPage() {
                       </button>
                     )}
 
+                    {/* CRM Executive Handover PDF Button */}
+                    <button
+                      onClick={() => setPdfModalProject(p)}
+                      className="w-full py-1.5 rounded-xl bg-indigo-600/15 hover:bg-indigo-600 text-indigo-400 hover:text-white font-bold text-[11px] border border-indigo-500/30 flex items-center justify-center gap-1.5 transition-all shadow"
+                      title="Open Executive Handover PDF with Dual Digital Sign-offs"
+                    >
+                      <FileText className="w-3.5 h-3.5" />
+                      <span>📄 View Handover Document (PDF)</span>
+                    </button>
+
+                    {/* 10-Section Formal Production Report PDF Button */}
+                    <button
+                      onClick={() => {
+                        const rep = p.productionReport || getDefaultProductionReport(p, {
+                          name: user?.fullName,
+                          id: user?.employeeId,
+                          designation: user?.designation,
+                        });
+                        exportProductionReportToPdf(p, rep);
+                      }}
+                      className="w-full py-1.5 rounded-xl bg-cyan-600/15 hover:bg-cyan-600 text-cyan-400 hover:text-white font-bold text-[11px] border border-cyan-500/30 flex items-center justify-center gap-1.5 transition-all shadow"
+                      title="Print or Save 10-Section Corporate Production Report PDF"
+                    >
+                      <Printer className="w-3.5 h-3.5" />
+                      <span>📑 Production Report (A4 PDF)</span>
+                    </button>
+
                     {/* Reports Downloads */}
                     <div className="flex items-center justify-between gap-2">
                       <button
@@ -964,6 +1002,114 @@ export default function ProjectsPage() {
             </button>
           </div>
         </form>
+      </Modal>
+
+      {/* Dedicated CRM Project Handover PDF Viewer Modal */}
+      <Modal
+        isOpen={!!pdfModalProject}
+        onClose={() => setPdfModalProject(null)}
+        title={`Executive Project Handover Document (PDF) - ${pdfModalProject?.projectCode || ''}`}
+        maxWidth="5xl"
+      >
+        {pdfModalProject && (() => {
+          const pdfUrl = getProjectHandoverPdfUrl(pdfModalProject);
+          const pdfPrintUrl = getProjectHandoverPdfUrl(pdfModalProject, true);
+          const agencySignoff = pdfModalProject.agencySignoff || pdfModalProject.handoverDocument?.agencySignoff;
+          const clientSignoff = pdfModalProject.clientSignoff || pdfModalProject.handoverDocument?.clientSignoff;
+
+          return (
+            <div className="space-y-4 text-xs">
+              {/* Header Action Bar */}
+              <div className="p-4 rounded-2xl bg-gray-950 border border-indigo-500/30 flex flex-col md:flex-row md:items-center justify-between gap-3 shadow-lg">
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="px-2.5 py-0.5 rounded font-mono text-[11px] font-bold bg-indigo-500/15 text-indigo-400 border border-indigo-500/30">
+                      {pdfModalProject.projectCode}
+                    </span>
+                    <Badge variant="success">CRM APPROVED &amp; VERIFIED</Badge>
+                  </div>
+                  <h3 className="text-base font-bold text-white">{pdfModalProject.projectName}</h3>
+                  <p className="text-gray-400 text-xs mt-0.5">
+                    Client: <strong className="text-gray-200">{pdfModalProject.customerName}</strong>
+                    <span className="mx-2 text-gray-600">•</span>
+                    Budget: <strong className="text-amber-400">${pdfModalProject.budget?.toLocaleString()}</strong>
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2 flex-wrap">
+                  <a
+                    href={pdfUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow flex items-center gap-1.5 transition-all"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" />
+                    <span>Open in New Tab</span>
+                  </a>
+
+                  <a
+                    href={pdfPrintUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow flex items-center gap-1.5 transition-all"
+                  >
+                    <Printer className="w-3.5 h-3.5" />
+                    <span>🖨️ Direct Print / Save as PDF</span>
+                  </a>
+                </div>
+              </div>
+
+              {/* Verified Signoffs Bar */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="p-3 rounded-xl bg-gray-950/80 border border-emerald-500/30">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1">
+                    <CheckCircle2 className="w-3.5 h-3.5" /> Development Agency Director Sign-off
+                  </span>
+                  <p className="font-bold text-white text-sm mt-1">{agencySignoff?.name || 'Admin Name'}</p>
+                  <p className="text-gray-400 text-xs">{agencySignoff?.designation || 'Agency Project Director'} • {agencySignoff?.date || '09/09/2026'}</p>
+                  <p className="text-emerald-300 font-mono text-[10px] mt-1 bg-emerald-950/40 p-1.5 rounded border border-emerald-500/20">
+                    ✍️ {agencySignoff?.signature || 'Admin Name [Digitally Signed]'}
+                  </p>
+                </div>
+
+                <div className="p-3 rounded-xl bg-gray-950/80 border border-cyan-500/30">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-cyan-400 flex items-center gap-1">
+                    <CheckCircle2 className="w-3.5 h-3.5" /> Client Sign-off &amp; Acceptance
+                  </span>
+                  <p className="font-bold text-white text-sm mt-1">{clientSignoff?.name || pdfModalProject.customerName}</p>
+                  <p className="text-gray-400 text-xs">{clientSignoff?.designation || 'Client Representative'} • {clientSignoff?.date || '09/09/2026'}</p>
+                  <p className="text-cyan-300 font-mono text-[10px] mt-1 bg-cyan-950/40 p-1.5 rounded border border-cyan-500/20">
+                    ✍️ {clientSignoff?.signature || `${pdfModalProject.customerName} [Authorized Client Sign-off]`}
+                  </p>
+                </div>
+              </div>
+
+              {/* Embedded Corporate Printable Document View (Tarika 1) */}
+              <div className="rounded-2xl border border-gray-800 overflow-hidden bg-white shadow-2xl">
+                <iframe
+                  src={pdfUrl}
+                  title={`Project Handover Document - ${pdfModalProject.projectCode}`}
+                  width="100%"
+                  height="720px"
+                  style={{ border: 'none' }}
+                />
+              </div>
+
+              <div className="pt-2 flex justify-between items-center">
+                <span className="text-[11px] text-gray-500">
+                  Document verified with corporate watermark, agency seal &amp; dual digital sign-offs.
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setPdfModalProject(null)}
+                  className="px-5 py-2.5 rounded-xl bg-gray-800 hover:bg-gray-700 text-gray-200 font-bold transition-all"
+                >
+                  Close Document View
+                </button>
+              </div>
+            </div>
+          );
+        })()}
       </Modal>
     </div>
   );

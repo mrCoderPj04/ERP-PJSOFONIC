@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { TrendingUp, Plus, DollarSign, Building2, Mail, Layers, CheckCircle2, Shield, UserCheck, Send } from 'lucide-react';
+import { TrendingUp, Plus, DollarSign, Building2, Mail, Layers, CheckCircle2, Shield, UserCheck, Send, FileText, ExternalLink } from 'lucide-react';
 import { EmptyState, Modal, Badge } from '../../components/ui';
-import { saveCrmProject, fetchCrmCustomerProjects, CrmCustomerProject } from '../../lib/crm';
+import { saveCrmProject, fetchCrmCustomerProjects, getProjectHandoverPdfUrl, CrmCustomerProject } from '../../lib/crm';
 import { fetchEmsEmployees, EmsUser } from '../../lib/ems';
 
 export default function CrmPage() {
@@ -165,6 +165,19 @@ export default function CrmPage() {
                 <p className="text-xs text-gray-400 mt-2.5 line-clamp-2 italic bg-gray-950/40 p-2 rounded-lg">
                   "{p.requirements}"
                 </p>
+
+                <div className="mt-3">
+                  <a
+                    href={getProjectHandoverPdfUrl(p)}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="w-full py-1.5 rounded-lg bg-indigo-600/15 hover:bg-indigo-600 text-indigo-400 hover:text-white font-bold text-xs border border-indigo-500/30 flex items-center justify-center gap-1.5 transition-all shadow"
+                  >
+                    <FileText className="w-3.5 h-3.5" />
+                    <span>📄 View Handover Document (PDF)</span>
+                    <ExternalLink className="w-3 h-3 ml-0.5 opacity-70" />
+                  </a>
+                </div>
               </div>
 
               <div className="pt-3 border-t border-gray-800/80 flex items-center justify-between text-xs text-emerald-400 font-semibold">
