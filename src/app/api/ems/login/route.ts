@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 
-const EMS_BACKEND_URL = process.env.EMS_BACKEND_URL || 'https://erp-backend-1-02lc.onrender.com/api';
+const EMS_BACKEND_URL = process.env.EMS_BACKEND_URL || 'https://ems-backend-z3bv.onrender.com/api';
 const LOCAL_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://pjsofonic-erp-backend.onrender.com/api';
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));

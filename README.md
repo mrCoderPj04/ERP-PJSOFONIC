@@ -20,8 +20,8 @@ Enterprise Resource Planning (ERP) platform frontend for **PJSOFONIC Enterprise 
 |---|---|---|
 | **ERP Frontend** | Main Web Application UI | [https://erp-pjsofonic.onrender.com/login](https://erp-pjsofonic.onrender.com/login) |
 | **ERP Backend API** | Express REST API & Database Gateway | [https://pjsofonic-erp-backend.onrender.com/api](https://pjsofonic-erp-backend.onrender.com/api) |
-| **EMS Directory & Auth** | Real-Time Staff Directory & Login | `https://erp-backend-1-02lc.onrender.com/api` |
-| **CRM Backend** | Customer Projects Ingestion | `https://pjsofonic-crm-backend.onrender.com` |
+| **EMS Directory & Auth** | Real-Time Staff Directory & Login | `https://ems-backend-z3bv.onrender.com/api` |
+| **CRM Backend** | Customer Projects Ingestion | `https://pjsofonic-crm-backend-roft.onrender.com` |
 | **QMS Quality Suite** | Live Quality Management & Testing Engine | [https://pjsofonic-qms.onrender.com/](https://pjsofonic-qms.onrender.com/) |
 | **Supabase Database** | Cloud PostgreSQL Schema (`project_erp`) | `https://ffauweryjzpnskdaqcyp.supabase.co` |
 
@@ -35,7 +35,7 @@ flowchart TD
     subgraph S1 ["🔐 1. Authentication & EMS Identity Gateway"]
         direction TB
         AUTH_IN["Staff Login Screen (/login)<br/>(Employee ID / Email + Password)"]
-        EMS_AUTH["EMS Backend Auth API<br/>(https://erp-backend-1-02lc.onrender.com)"]
+        EMS_AUTH["EMS Backend Auth API<br/>(https://ems-backend-z3bv.onrender.com)"]
         ROLE_CHECK{"Role & Department<br/>Classification"}
         ROLE_A["👑 ADMIN<br/>(Portfolio & Approvals)"]
         ROLE_TL["👑 TEAM LEADER<br/>(Dual Workbench)"]
@@ -53,7 +53,7 @@ flowchart TD
     %% 2. STAGE 1 (Center Top Box)
     subgraph S2 ["👑 2. Stage 1: Project Creation & Dispatch"]
         direction TB
-        CRM_IN["CRM Customer Projects Ingestion<br/>(https://pjsofonic-crm-backend.onrender.com)"]
+        CRM_IN["CRM Customer Projects Ingestion<br/>(https://pjsofonic-crm-backend-roft.onrender.com)"]
         ADMIN_MANUAL["Admin Manual Project Creation Desk<br/>(Projects Desk /projects)"]
         ADMIN_HUB["Admin Project Master Control Desk<br/>(Ingests client scope & budget)"]
         SELECT_TL["Select Department Team Leader<br/>(Registered EMS Team Leaders Dropdown)"]
@@ -193,7 +193,7 @@ Live notification engine synchronized across all profiles with dynamic employee 
   - For **Team Leader Login**: Directory strictly displays **Full Stack Engineers (`💻`)** and **Quality Staff (`🛡️`)**.
   - For **Admin Login**: Directory strictly displays **Team Leaders (`👑`)** and **Quality Staff (`🛡️`)**.
 - **Direct DM Chat Tab**:
-  - Displays **ALL registered employees** from the live EMS database (`https://erp-backend-1-02lc.onrender.com/api/employees`).
+  - Displays **ALL registered employees** from the live EMS database (`https://ems-backend-z3bv.onrender.com/api/employees`).
   - Real-time 2-way messaging sync across open tabs and browser windows.
 
 ---
@@ -209,8 +209,9 @@ Live notification engine synchronized across all profiles with dynamic employee 
 
 ```env
 NEXT_PUBLIC_BACKEND_URL="https://pjsofonic-erp-backend.onrender.com/api"
-NEXT_PUBLIC_CRM_API_BASE="https://pjsofonic-crm-backend.onrender.com"
-NEXT_PUBLIC_EMS_API_BASE="https://erp-backend-1-02lc.onrender.com/api"
+NEXT_PUBLIC_CRM_API_BASE="https://pjsofonic-crm-backend-roft.onrender.com"
+NEXT_PUBLIC_EMS_API_BASE="https://ems-backend-z3bv.onrender.com/api"
+NEXT_PUBLIC_EMS_BACKEND_URL="https://ems-backend-z3bv.onrender.com/api"
 NEXT_PUBLIC_PROJECTOS_API_BASE="https://sofo-projectos.onrender.com"
 NEXT_PUBLIC_QMS_API_BASE="https://pjsofonic-qms.onrender.com"
 NEXT_PUBLIC_SUPABASE_URL="https://ffauweryjzpnskdaqcyp.supabase.co"

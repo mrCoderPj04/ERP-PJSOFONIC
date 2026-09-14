@@ -1,7 +1,7 @@
 import { fetchSupabaseProjects, saveProjectToSupabase } from './supabase';
 import { safeString } from './safeString';
 
-export const CRM_API_BASE = process.env.NEXT_PUBLIC_CRM_API_BASE || 'https://pjsofonic-crm-backend.onrender.com';
+export const CRM_API_BASE = process.env.NEXT_PUBLIC_CRM_API_BASE || 'https://pjsofonic-crm-backend-roft.onrender.com';
 export const ERP_BACKEND_API_BASE = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://pjsofonic-erp-backend.onrender.com/api';
 
 export interface ProductionDeliverables {

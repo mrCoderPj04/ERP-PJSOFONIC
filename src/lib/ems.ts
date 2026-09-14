@@ -1,6 +1,6 @@
 import { safeString } from './safeString';
 
-export const EMS_API_BASE = 'https://erp-backend-1-02lc.onrender.com/api';
+export const EMS_API_BASE = process.env.NEXT_PUBLIC_EMS_BACKEND_URL || 'https://ems-backend-z3bv.onrender.com/api';
 
 export interface EmsUser {
   id: string;

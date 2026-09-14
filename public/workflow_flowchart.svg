@@ -18,7 +18,7 @@
 
     <rect x="100" y="60" width="700" height="80" fill="#FFFFFF" stroke="#94A3B8" stroke-width="2" />
     <text x="116" y="92" fill="#0F172A" font-size="18" font-weight="700">CRM Customer Projects Ingestion</text>
-    <text x="116" y="120" fill="#475569" font-size="15">https://pjsofonic-crm-backend.onrender.com</text>
+    <text x="116" y="120" fill="#475569" font-size="15">https://pjsofonic-crm-backend-roft.onrender.com</text>
 
     <rect x="100" y="160" width="700" height="80" fill="#FFFFFF" stroke="#94A3B8" stroke-width="2" />
     <text x="116" y="192" fill="#0F172A" font-size="18" font-weight="700">Admin Manual Project Creation Desk</text>
@@ -61,7 +61,7 @@
 
     <rect x="50" y="190" width="700" height="90" fill="#FFFFFF" stroke="#94A3B8" stroke-width="2" />
     <text x="66" y="225" fill="#0F172A" font-size="18" font-weight="700">EMS Auth Backend API Gateway</text>
-    <text x="66" y="255" fill="#475569" font-size="15">https://erp-backend-1-02lc.onrender.com/api/auth/login</text>
+    <text x="66" y="255" fill="#475569" font-size="15">https://ems-backend-z3bv.onrender.com/api/auth/login</text>
 
     <line x1="400" y1="280" x2="400" y2="340" stroke="#2563EB" stroke-width="2" marker-end="url(#arrow)" />
 

@@ -236,7 +236,7 @@ export default function CommunicationPage() {
 
   // =========================================================================
   // 2. DIRECT DM CHAT DIRECTORY RULE:
-  // ALL Registered EMS Employees from https://erp-backend-1-02lc.onrender.com/api
+  // ALL Registered EMS Employees from https://ems-backend-z3bv.onrender.com/api
   // =========================================================================
   const directDmDirectory = emsStaff;
 
@@ -263,7 +263,7 @@ export default function CommunicationPage() {
               Agency Real-Time EMS Communication Hub
             </h1>
             <p className="text-xs text-gray-400">
-              Live Two-Way Messaging for Registered EMS Staff (Backend: <span className="font-mono text-indigo-400">https://erp-backend-1-02lc.onrender.com/api</span>)
+              Live Two-Way Messaging for Registered EMS Staff (Backend: <span className="font-mono text-indigo-400">https://ems-backend-z3bv.onrender.com/api</span>)
             </p>
           </div>
         </div>

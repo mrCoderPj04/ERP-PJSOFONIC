@@ -61,7 +61,7 @@ export default function EmployeesPage() {
             <Users className="w-6 h-6 text-indigo-400" /> Department-Divided Employee Directory
           </h1>
           <p className="text-xs text-gray-400 mt-1">
-            Live registered employees fetched from EMS API (https://erp-backend-1-02lc.onrender.com/api) divided by Department & Team Leaders.
+            Live registered employees fetched from EMS API (https://ems-backend-z3bv.onrender.com/api) divided by Department & Team Leaders.
           </p>
         </div>
 
@@ -119,7 +119,7 @@ export default function EmployeesPage() {
         <EmptyState
           icon={Users}
           title="No Registered Employees in this Department"
-          description="Only employees registered in https://erp-backend-1-02lc.onrender.com/api are displayed here. Register employees in EMS to assign them to ERP departments."
+          description="Only employees registered in https://ems-backend-z3bv.onrender.com/api are displayed here. Register employees in EMS to assign them to ERP departments."
           actionLabel="Sync Live EMS API"
           onAction={loadLiveEmsEmployees}
         />

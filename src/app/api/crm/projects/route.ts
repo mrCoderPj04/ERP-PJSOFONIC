@@ -27,7 +27,8 @@ export async function GET(req: Request) {
     const headers: Record<string, string> = {};
     if (authHeader) headers['Authorization'] = authHeader;
 
-    const remoteRes = await fetch('https://pjsofonic-crm-backend.onrender.com/api/v1/projects', {
+    const crmBase = process.env.NEXT_PUBLIC_CRM_API_BASE || 'https://pjsofonic-crm-backend-roft.onrender.com';
+    const remoteRes = await fetch(`${crmBase}/api/v1/projects`, {
       headers,
       cache: 'no-store',
     });
