@@ -437,7 +437,73 @@ export interface ProductionReport {
   updatedAt: string;
 }
 
+export interface QualityTestingArea {
+  area: string;
+  planned: number;
+  executed: number;
+  passed: number;
+  failed: number;
+  coverage: string;
+}
+
+export interface QualityModuleStrategy {
+  module: string;
+  testCases: number;
+  passed: number;
+  failed: number;
+  blocked: number;
+  status: 'Pass' | 'Fail' | string;
+}
+
+export interface QualityTestType {
+  testType: string;
+  objective: string;
+  result: 'Passed' | 'Pending' | string;
+}
+
+export interface QualityDefectSeverity {
+  severity: string;
+  total: number;
+  resolved: number;
+  retested: number;
+  closed: number;
+  open: number;
+}
+
+export interface QualityReleaseCriteria {
+  criticalOpen: number;
+  highOpen: number;
+  regressionPassed: boolean;
+  uatApproved: boolean;
+  smokePassed: boolean;
+  status: string;
+}
+
+export interface QualitySignoff {
+  name: string;
+  employeeId?: string;
+  designation: string;
+  date: string;
+  signature: string;
+  notes?: string;
+  remarks?: string;
+  approved?: boolean;
+  submittedAt?: string;
+  approvedAt?: string;
+}
+
 export interface QualityReport {
+  title?: string;
+  description?: string;
+  testingAreas: QualityTestingArea[];
+  moduleStrategy: QualityModuleStrategy[];
+  testTypes: QualityTestType[];
+  defectSeverity: QualityDefectSeverity[];
+  releaseCriteria: QualityReleaseCriteria;
+
+  qaLeadSignoff?: QualitySignoff;
+  qualityHeadSignoff?: QualitySignoff;
+
   testSummary: {
     totalTests: number;
     passed: number;
@@ -472,25 +538,8 @@ export interface QualityReport {
     status: 'VERIFIED' | 'FAILED' | 'PENDING';
   }>;
   currentStage: 'DRAFT' | 'SUBMITTED_BY_ENGINEER' | 'APPROVED_BY_HEAD';
-  engineerSignoff?: {
-    name: string;
-    employeeId?: string;
-    designation: string;
-    date: string;
-    signature: string;
-    notes?: string;
-    submittedAt?: string;
-  };
-  headApproval?: {
-    name: string;
-    employeeId?: string;
-    designation: string;
-    date: string;
-    signature: string;
-    remarks?: string;
-    approved: boolean;
-    approvedAt?: string;
-  };
+  engineerSignoff?: QualitySignoff;
+  headApproval?: QualitySignoff;
   createdAt: string;
   updatedAt: string;
 }
@@ -2386,16 +2435,75 @@ export function getDefaultQualityReport(
 ): QualityReport {
   const projCode = project.projectCode || 'PJ-QA-001';
   const projName = project.projectName || 'PS Softonic Enterprise Platform';
-  const qaName = qaUser?.name || project.assignedQualityEngineerName || 'Senior Quality Engineer';
+  const qaName = qaUser?.name || project.assignedQualityEngineerName || 'Senior QA Engineer';
   const qaId = qaUser?.id || project.assignedQualityEngineerId || 'EMP-QE-01';
 
+  const testingAreas: QualityTestingArea[] = [
+    { area: 'Functional', planned: 60, executed: 60, passed: 60, failed: 0, coverage: '100%' },
+    { area: 'Integration', planned: 45, executed: 45, passed: 45, failed: 0, coverage: '100%' },
+    { area: 'System', planned: 40, executed: 40, passed: 40, failed: 0, coverage: '100%' },
+    { area: 'Regression', planned: 35, executed: 35, passed: 35, failed: 0, coverage: '100%' },
+    { area: 'Security', planned: 25, executed: 25, passed: 25, failed: 0, coverage: '100%' },
+    { area: 'Performance', planned: 20, executed: 20, passed: 20, failed: 0, coverage: '100%' },
+    { area: 'UAT', planned: 18, executed: 18, passed: 18, failed: 0, coverage: '100%' },
+  ];
+
+  const moduleStrategy: QualityModuleStrategy[] = [
+    { module: 'EMS', testCases: 38, passed: 38, failed: 0, blocked: 0, status: 'Pass' },
+    { module: 'ERP', testCases: 52, passed: 52, failed: 0, blocked: 0, status: 'Pass' },
+    { module: 'MUI', testCases: 32, passed: 32, failed: 0, blocked: 0, status: 'Pass' },
+    { module: 'Buy', testCases: 26, passed: 26, failed: 0, blocked: 0, status: 'Pass' },
+    { module: 'Reports', testCases: 34, passed: 34, failed: 0, blocked: 0, status: 'Pass' },
+    { module: 'Soft Doc', testCases: 30, passed: 30, failed: 0, blocked: 0, status: 'Pass' },
+    { module: 'AI Workflows', testCases: 31, passed: 31, failed: 0, blocked: 0, status: 'Pass' },
+  ];
+
+  const testTypes: QualityTestType[] = [
+    { testType: 'Functional Testing', objective: 'Validate requirements and user workflows', result: 'Passed' },
+    { testType: 'Integration Testing', objective: 'Validate system APIs and data exchange', result: 'Passed' },
+    { testType: 'System Testing', objective: 'End-to-end system validation', result: 'Passed' },
+    { testType: 'Regression Testing', objective: 'Ensure updates do not break existing modules', result: 'Passed' },
+    { testType: 'UAT Testing', objective: 'Validate business workflows and client acceptance', result: 'Passed' },
+    { testType: 'Smoke Testing', objective: 'Ensure core services are healthy before deployment', result: 'Passed' },
+  ];
+
+  const defectSeverity: QualityDefectSeverity[] = [
+    { severity: 'Critical', total: 0, resolved: 0, retested: 0, closed: 0, open: 0 },
+    { severity: 'High', total: 0, resolved: 0, retested: 0, closed: 0, open: 0 },
+    { severity: 'Medium', total: 3, resolved: 3, retested: 3, closed: 3, open: 0 },
+    { severity: 'Low', total: 5, resolved: 5, retested: 5, closed: 5, open: 0 },
+  ];
+
+  const releaseCriteria: QualityReleaseCriteria = {
+    criticalOpen: 0,
+    highOpen: 0,
+    regressionPassed: true,
+    uatApproved: true,
+    smokePassed: true,
+    status: 'Ready for Release',
+  };
+
+  const totalTests = moduleStrategy.reduce((acc, m) => acc + (Number(m.testCases) || 0), 0);
+  const totalPassed = moduleStrategy.reduce((acc, m) => acc + (Number(m.passed) || 0), 0);
+  const totalFailed = moduleStrategy.reduce((acc, m) => acc + (Number(m.failed) || 0), 0);
+  const totalBlocked = moduleStrategy.reduce((acc, m) => acc + (Number(m.blocked) || 0), 0);
+  const passRate = totalTests > 0 ? `${Math.round((totalPassed / totalTests) * 100)}%` : '100%';
+
   return {
+    title: 'QUALITY ENGINEERING REPORT',
+    description:
+      'Quality Engineering independently validates functional behavior, integration, regression, security, performance, usability and business acceptance before final release.',
+    testingAreas,
+    moduleStrategy,
+    testTypes,
+    defectSeverity,
+    releaseCriteria,
     testSummary: {
-      totalTests: 248,
-      passed: 244,
-      failed: 0,
-      blocked: 4,
-      passRate: '98.4%',
+      totalTests,
+      passed: totalPassed,
+      failed: totalFailed,
+      blocked: totalBlocked,
+      passRate,
       executionDate: new Date().toLocaleDateString('en-GB'),
     },
     testSuites: [
@@ -2404,18 +2512,18 @@ export function getDefaultQualityReport(
       { suiteName: 'CRM Ingestion & Bi-directional Sync', module: 'CRM Module', testsCount: 48, passCount: 48, failCount: 0, status: 'PASSED' },
       { suiteName: 'MUI Reporting & Data Grid Suite', module: 'Analytics & Reporting', testsCount: 38, passCount: 38, failCount: 0, status: 'PASSED' },
       { suiteName: 'End-to-End Handover Pipeline', module: 'Executive Workflow', testsCount: 40, passCount: 40, failCount: 0, status: 'PASSED' },
-      { suiteName: 'Cross-Browser & Responsive UI', module: 'Frontend Web', testsCount: 45, passCount: 41, failCount: 0, status: 'PASSED' },
+      { suiteName: 'Cross-Browser & Responsive UI', module: 'Frontend Web', testsCount: 40, passCount: 40, failCount: 0, status: 'PASSED' },
     ],
     defectSeverityMatrix: {
       critical: 0,
       high: 0,
-      medium: 2,
-      low: 4,
+      medium: 3,
+      low: 5,
     },
     performanceMetrics: {
       avgApiResponseMs: 118,
       p99ResponseMs: 380,
-      errorRatePercent: 0.02,
+      errorRatePercent: 0.0,
       concurrencyPassed: true,
     },
     environmentsTested: [
@@ -2509,18 +2617,21 @@ export function submitQualityEngineerReport(
 
   const updated = existing.map((p) => {
     if (p.id === projectId || p.projectCode === projectId) {
+      const signoff: QualitySignoff = {
+        name: qaUser.name || 'Quality Engineer',
+        employeeId: qaUser.id || 'EMP-QE-01',
+        designation: qaUser.designation || 'Quality Assurance Lead / Senior QA Engineer',
+        date: new Date().toLocaleDateString('en-GB'),
+        signature,
+        notes,
+        submittedAt: new Date().toISOString(),
+      };
+
       const updatedReport: QualityReport = {
         ...report,
         currentStage: 'SUBMITTED_BY_ENGINEER',
-        engineerSignoff: {
-          name: qaUser.name || 'Quality Engineer',
-          employeeId: qaUser.id || 'EMP-QE',
-          designation: qaUser.designation || 'Quality Engineer',
-          date: new Date().toLocaleDateString('en-GB'),
-          signature,
-          notes,
-          submittedAt: new Date().toISOString(),
-        },
+        engineerSignoff: signoff,
+        qaLeadSignoff: signoff,
         updatedAt: new Date().toISOString(),
       };
 
@@ -2530,6 +2641,27 @@ export function submitQualityEngineerReport(
         stage: 'QUALITY_SUBMITTED' as const,
         status: 'working' as const,
       };
+
+      // Sync handover doc part D if present
+      if (modifiedItem.handoverDocument) {
+        modifiedItem.handoverDocument.partD_Quality = {
+          testingAreas: updatedReport.testingAreas,
+          moduleStrategy: updatedReport.moduleStrategy,
+          testTypes: updatedReport.testTypes,
+          defectSeverity: updatedReport.defectSeverity,
+          releaseCriteria: {
+            criticalOpen: updatedReport.releaseCriteria.criticalOpen,
+            highOpen: updatedReport.releaseCriteria.highOpen,
+            regressionPassed: updatedReport.releaseCriteria.regressionPassed,
+            uatApproved: updatedReport.releaseCriteria.uatApproved,
+            smokePassed: updatedReport.releaseCriteria.smokePassed,
+            statement: updatedReport.releaseCriteria.status || 'Ready for Release',
+          },
+          qaLeadSignoff: signoff,
+          qualityHeadSignoff: updatedReport.qualityHeadSignoff,
+        };
+      }
+
       return modifiedItem;
     }
     return p;
@@ -2559,19 +2691,22 @@ export function approveQualityHeadReport(
   const updated = existing.map((p) => {
     if (p.id === projectId || p.projectCode === projectId) {
       const currentReport = p.qualityReport || getDefaultQualityReport(p);
+      const headSignoff: QualitySignoff = {
+        name: headUser.name || 'Quality Head',
+        employeeId: headUser.id || 'EMP-QH-01',
+        designation: headUser.designation || 'Quality Head',
+        date: new Date().toLocaleDateString('en-GB'),
+        signature,
+        remarks,
+        approved: true,
+        approvedAt: new Date().toISOString(),
+      };
+
       const updatedReport: QualityReport = {
         ...currentReport,
         currentStage: 'APPROVED_BY_HEAD',
-        headApproval: {
-          name: headUser.name || 'Quality Head',
-          employeeId: headUser.id || 'EMP-QH',
-          designation: headUser.designation || 'Quality Head',
-          date: new Date().toLocaleDateString('en-GB'),
-          signature,
-          remarks,
-          approved: true,
-          approvedAt: new Date().toISOString(),
-        },
+        headApproval: headSignoff,
+        qualityHeadSignoff: headSignoff,
         updatedAt: new Date().toISOString(),
       };
 
@@ -2581,6 +2716,12 @@ export function approveQualityHeadReport(
         stage: 'QUALITY_APPROVED' as const,
         status: 'working' as const,
       };
+
+      // Sync handover doc part D if present
+      if (modifiedItem.handoverDocument?.partD_Quality) {
+        modifiedItem.handoverDocument.partD_Quality.qualityHeadSignoff = headSignoff;
+      }
+
       return modifiedItem;
     }
     return p;
@@ -2865,7 +3006,7 @@ export function managerSubmitConsolidatedToAdmin(
 }
 
 export function isQualityReportApproved(project: CrmCustomerProject): boolean {
-  return !!project.qualityReport?.headApproval?.approved;
+  return !!project.qualityReport?.headApproval?.approved || !!project.qualityReport?.qualityHeadSignoff?.approved;
 }
 
 export function isCyberReportApproved(project: CrmCustomerProject): boolean {

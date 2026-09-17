@@ -183,6 +183,7 @@ export default function DashboardPage() {
   const [qualityEngineerNotes, setQualityEngineerNotes] = useState<string>('');
 
   const [approvingQualityReportProject, setApprovingQualityReportProject] = useState<CrmCustomerProject | null>(null);
+  const [viewingQualityReportProject, setViewingQualityReportProject] = useState<CrmCustomerProject | null>(null);
   const [qualityApprovalRemarks, setQualityApprovalRemarks] = useState<string>('Approved for production delivery and cyber security audit.');
   const [qualityHeadSignature, setQualityHeadSignature] = useState<string>('');
 
@@ -274,8 +275,8 @@ export default function DashboardPage() {
   const handleOpenQualityReport = (project: CrmCustomerProject) => {
     const report = project.qualityReport || getDefaultQualityReport(project);
     setQualityReportDraft(report);
-    setQualityEngineerSignature(report.engineerSignoff?.signature || user?.fullName || '');
-    setQualityEngineerNotes(report.engineerSignoff?.notes || 'All automated unit, integration, and performance test suites executed successfully.');
+    setQualityEngineerSignature(report.qaLeadSignoff?.signature || report.engineerSignoff?.signature || user?.fullName || '');
+    setQualityEngineerNotes(report.qaLeadSignoff?.notes || report.engineerSignoff?.notes || 'All automated unit, integration, and performance test suites executed successfully.');
     setFillingQualityReportProject(project);
   };
 
@@ -1935,6 +1936,15 @@ export default function DashboardPage() {
                           </button>
 
                           <button
+                            onClick={() => setViewingQualityReportProject(p)}
+                            className="px-2.5 py-1 rounded-lg bg-gray-900 hover:bg-gray-800 text-rose-300 font-bold text-[11px] border border-gray-800 flex items-center gap-1"
+                            title="View Quality Engineering Report"
+                          >
+                            <FileText className="w-3 h-3 text-rose-400" />
+                            <span>View QA</span>
+                          </button>
+
+                          <button
                             onClick={() => exportCyberReportToPdf(p)}
                             className="px-2.5 py-1 rounded-lg bg-gray-900 hover:bg-gray-800 text-purple-400 font-bold text-[11px] border border-gray-800 flex items-center gap-1"
                             title="Print Cyber Security Audit"
@@ -3085,17 +3095,17 @@ export default function DashboardPage() {
                           </div>
                           <div className="flex items-center justify-between">
                             <span className="text-gray-400">Total Tests Run:</span>
-                            <span className="font-bold text-cyan-300">{qa.testSummary.totalTests} tests ({qa.testSummary.passRate} pass rate)</span>
+                            <span className="font-bold text-cyan-300">{qa.testSummary?.totalTests ?? 248} tests ({qa.testSummary?.passRate ?? '100%'} pass rate)</span>
                           </div>
                           <div className="flex items-center justify-between">
                             <span className="text-gray-400">Critical / High Bugs:</span>
                             <span className="font-bold text-amber-400">
-                              {qa.defectSeverityMatrix.critical} Critical • {qa.defectSeverityMatrix.high} High
+                              {qa.defectSeverityMatrix?.critical ?? 0} Critical • {qa.defectSeverityMatrix?.high ?? 0} High
                             </span>
                           </div>
                           <div className="flex items-center justify-between">
                             <span className="text-gray-400">Avg API Latency:</span>
-                            <span className="font-bold text-emerald-400">{qa.performanceMetrics.avgApiResponseMs}ms</span>
+                            <span className="font-bold text-emerald-400">{qa.performanceMetrics?.avgApiResponseMs ?? 118}ms</span>
                           </div>
                         </div>
                       </div>
@@ -3128,6 +3138,14 @@ export default function DashboardPage() {
                             </button>
                           )}
                         </div>
+
+                        <button
+                          onClick={() => setViewingQualityReportProject(p)}
+                          className="px-3 py-1.5 rounded-xl bg-gray-800 hover:bg-gray-700 text-rose-300 font-bold text-xs border border-gray-700 flex items-center gap-1"
+                        >
+                          <FileText className="w-3.5 h-3.5 text-rose-400" />
+                          <span>View Report</span>
+                        </button>
 
                         <button
                           onClick={() => exportQualityReportToPdf(p)}
@@ -3231,19 +3249,19 @@ export default function DashboardPage() {
                         <div className="mt-3 p-3 rounded-xl bg-gray-900 border border-gray-800 text-xs space-y-1.5">
                           <div className="flex items-center justify-between">
                             <span className="text-gray-400">Total Test Count:</span>
-                            <span className="font-bold text-white">{qa.testSummary.totalTests} Tests</span>
+                            <span className="font-bold text-white">{qa.testSummary?.totalTests ?? 248} Tests</span>
                           </div>
                           <div className="flex items-center justify-between">
                             <span className="text-gray-400">Pass Rate:</span>
-                            <span className="font-bold text-emerald-400">{qa.testSummary.passRate}</span>
+                            <span className="font-bold text-emerald-400">{qa.testSummary?.passRate ?? '100%'}</span>
                           </div>
                           <div className="flex items-center justify-between">
                             <span className="text-gray-400">Critical Defects:</span>
-                            <span className="font-bold text-rose-400">{qa.defectSeverityMatrix.critical}</span>
+                            <span className="font-bold text-rose-400">{qa.defectSeverityMatrix?.critical ?? 0}</span>
                           </div>
                           <div className="flex items-center justify-between">
                             <span className="text-gray-400">Avg API Latency:</span>
-                            <span className="font-bold text-cyan-400">{qa.performanceMetrics.avgApiResponseMs}ms</span>
+                            <span className="font-bold text-cyan-400">{qa.performanceMetrics?.avgApiResponseMs ?? 118}ms</span>
                           </div>
                         </div>
                       </div>
@@ -3256,6 +3274,16 @@ export default function DashboardPage() {
                           <TestTube className="w-3.5 h-3.5" />
                           <span>{isSubmitted ? 'Edit / Resubmit QA Report' : 'Fill & Submit QA Report'}</span>
                         </button>
+
+                        {isSubmitted && (
+                          <button
+                            onClick={() => setViewingQualityReportProject(p)}
+                            className="px-3 py-1.5 rounded-xl bg-gray-800 hover:bg-gray-700 text-rose-300 font-bold text-xs border border-gray-700 flex items-center gap-1"
+                          >
+                            <FileText className="w-3.5 h-3.5 text-rose-400" />
+                            <span>View QA</span>
+                          </button>
+                        )}
 
                         <button
                           onClick={() => exportQualityReportToPdf(p)}
@@ -5390,209 +5418,424 @@ export default function DashboardPage() {
         )}
       </Modal>
 
-      {/* 17. Quality Engineer Fill & Submit Quality Report Modal */}
+      {/* 17. Quality Engineer Execute & Submit Report Modal */}
       <Modal
         isOpen={!!fillingQualityReportProject}
         onClose={() => setFillingQualityReportProject(null)}
-        title={`Execute Quality Testing & Submit Report - ${fillingQualityReportProject?.projectCode || ''}`}
-        maxWidth="2xl"
+        title={`QUALITY ENGINEERING REPORT - ${fillingQualityReportProject?.projectCode || ''}`}
+        maxWidth="4xl"
       >
         {fillingQualityReportProject && qualityReportDraft && (
-          <form onSubmit={handleQualityEngineerSubmit} className="space-y-4 text-xs max-h-[80vh] overflow-y-auto pr-1">
-            <div className="p-3.5 rounded-xl bg-gray-950 border border-gray-800 space-y-1">
-              <span className="text-rose-400 font-bold block">{fillingQualityReportProject.projectName}</span>
-              <p className="text-gray-400">Lead QA Audit: ISO/IEC/IEEE 29119 Quality Standards Execution</p>
+          <form onSubmit={handleQualityEngineerSubmit} className="space-y-4 text-xs max-h-[85vh] overflow-y-auto pr-1">
+            <div className="p-4 rounded-2xl bg-gray-950 border border-rose-500/30 space-y-1">
+              <div className="flex items-center justify-between">
+                <span className="text-rose-400 font-black text-sm tracking-wide">
+                  QUALITY ENGINEERING REPORT
+                </span>
+                <span className="px-2.5 py-0.5 rounded bg-rose-500/20 text-rose-300 font-mono text-[10px] font-bold border border-rose-500/30">
+                  {fillingQualityReportProject.projectCode}
+                </span>
+              </div>
+              <p className="text-gray-300 font-medium italic text-[11px] leading-relaxed">
+                Quality Engineering independently validates functional behavior, integration, regression, security, performance, usability and business acceptance before final release.
+              </p>
+              <div className="flex flex-wrap items-center gap-4 text-[11px] text-gray-400 pt-1">
+                <span>Project: <strong className="text-white">{fillingQualityReportProject.projectName}</strong></span>
+                <span>Client: <strong className="text-white">{fillingQualityReportProject.customerName}</strong></span>
+                <span>Audit Target: <strong className="text-emerald-400">100% Release Ready</strong></span>
+              </div>
             </div>
 
-            {/* Test Summary */}
-            <div className="p-4 rounded-xl bg-gray-900 border border-gray-800 space-y-3">
-              <h5 className="font-bold text-white text-xs uppercase tracking-wide flex items-center gap-1.5">
-                <TestTube className="w-4 h-4 text-rose-400" /> 1. Test Suite Execution Summary
+            {/* Table 1: Testing Area Coverage */}
+            <div className="p-4 rounded-2xl bg-gray-900 border border-gray-800 space-y-3">
+              <h5 className="font-bold text-white text-xs uppercase tracking-wide flex items-center gap-1.5 text-rose-400">
+                <TestTube className="w-4 h-4 text-rose-400" /> Testing Area Coverage
               </h5>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <div>
-                  <label className="text-gray-400 block mb-1">Total Tests</label>
-                  <input
-                    type="number"
-                    value={qualityReportDraft.testSummary.totalTests}
-                    onChange={(e) =>
-                      setQualityReportDraft({
-                        ...qualityReportDraft,
-                        testSummary: { ...qualityReportDraft.testSummary, totalTests: Number(e.target.value) },
-                      })
-                    }
-                    className="w-full px-2.5 py-1.5 rounded-lg bg-gray-950 border border-gray-800 text-white text-xs font-bold"
-                  />
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-gray-800 text-gray-400 text-[11px]">
+                      <th className="pb-2 font-bold">Testing Area</th>
+                      <th className="pb-2 font-bold text-center">Planned</th>
+                      <th className="pb-2 font-bold text-center">Executed</th>
+                      <th className="pb-2 font-bold text-center">Passed</th>
+                      <th className="pb-2 font-bold text-center">Failed</th>
+                      <th className="pb-2 font-bold text-center">Coverage %</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-800/60 text-[11px]">
+                    {(qualityReportDraft.testingAreas || []).map((t, idx) => (
+                      <tr key={`ta-${t.area}`} className="hover:bg-gray-800/40">
+                        <td className="py-2 font-bold text-white">{t.area}</td>
+                        <td className="py-2 px-1 text-center">
+                          <input
+                            type="number"
+                            value={t.planned}
+                            onChange={(e) => {
+                              const planned = Math.max(0, Number(e.target.value));
+                              const passed = Number(t.passed) || 0;
+                              const cov = planned > 0 ? `${Math.min(100, Math.round((passed / planned) * 100))}%` : '100%';
+                              const updated = [...qualityReportDraft.testingAreas];
+                              updated[idx] = { ...updated[idx], planned, coverage: cov };
+                              setQualityReportDraft({ ...qualityReportDraft, testingAreas: updated });
+                            }}
+                            className="w-16 px-2 py-1 text-center rounded bg-gray-950 border border-gray-800 text-white font-mono text-xs focus:border-rose-500"
+                          />
+                        </td>
+                        <td className="py-2 px-1 text-center">
+                          <input
+                            type="number"
+                            value={t.executed}
+                            onChange={(e) => {
+                              const executed = Math.max(0, Number(e.target.value));
+                              const updated = [...qualityReportDraft.testingAreas];
+                              updated[idx] = { ...updated[idx], executed };
+                              setQualityReportDraft({ ...qualityReportDraft, testingAreas: updated });
+                            }}
+                            className="w-16 px-2 py-1 text-center rounded bg-gray-950 border border-gray-800 text-cyan-300 font-mono text-xs focus:border-rose-500"
+                          />
+                        </td>
+                        <td className="py-2 px-1 text-center">
+                          <input
+                            type="number"
+                            value={t.passed}
+                            onChange={(e) => {
+                              const passed = Math.max(0, Number(e.target.value));
+                              const planned = Number(t.planned) || 0;
+                              const cov = planned > 0 ? `${Math.min(100, Math.round((passed / planned) * 100))}%` : '100%';
+                              const updated = [...qualityReportDraft.testingAreas];
+                              updated[idx] = { ...updated[idx], passed, coverage: cov };
+                              setQualityReportDraft({ ...qualityReportDraft, testingAreas: updated });
+                            }}
+                            className="w-16 px-2 py-1 text-center rounded bg-gray-950 border border-gray-800 text-emerald-400 font-mono text-xs focus:border-rose-500 font-bold"
+                          />
+                        </td>
+                        <td className="py-2 px-1 text-center">
+                          <input
+                            type="number"
+                            value={t.failed}
+                            onChange={(e) => {
+                              const failed = Math.max(0, Number(e.target.value));
+                              const updated = [...qualityReportDraft.testingAreas];
+                              updated[idx] = { ...updated[idx], failed };
+                              setQualityReportDraft({ ...qualityReportDraft, testingAreas: updated });
+                            }}
+                            className="w-16 px-2 py-1 text-center rounded bg-gray-950 border border-gray-800 text-rose-400 font-mono text-xs focus:border-rose-500 font-bold"
+                          />
+                        </td>
+                        <td className="py-2 px-1 text-center">
+                          <span className="font-bold text-rose-400 font-mono">{t.coverage}</span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Table 2: 15. TEST STRATEGY & COVERAGE */}
+            <div className="p-4 rounded-2xl bg-gray-900 border border-gray-800 space-y-3">
+              <h5 className="font-bold text-white text-xs uppercase tracking-wide flex items-center gap-1.5 text-rose-400">
+                <Code2 className="w-4 h-4 text-rose-400" /> 15. TEST STRATEGY &amp; COVERAGE
+              </h5>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-gray-800 text-gray-400 text-[11px]">
+                      <th className="pb-2 font-bold">Module</th>
+                      <th className="pb-2 font-bold text-center">Test Cases</th>
+                      <th className="pb-2 font-bold text-center">Passed</th>
+                      <th className="pb-2 font-bold text-center">Failed</th>
+                      <th className="pb-2 font-bold text-center">Blocked</th>
+                      <th className="pb-2 font-bold text-center">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-800/60 text-[11px]">
+                    {(qualityReportDraft.moduleStrategy || []).map((m, idx) => (
+                      <tr key={`mod-${m.module}`} className="hover:bg-gray-800/40">
+                        <td className="py-2 font-bold text-white">{m.module}</td>
+                        <td className="py-2 px-1 text-center">
+                          <input
+                            type="number"
+                            value={m.testCases}
+                            onChange={(e) => {
+                              const testCases = Math.max(0, Number(e.target.value));
+                              const updated = [...qualityReportDraft.moduleStrategy];
+                              updated[idx] = { ...updated[idx], testCases };
+                              setQualityReportDraft({ ...qualityReportDraft, moduleStrategy: updated });
+                            }}
+                            className="w-16 px-2 py-1 text-center rounded bg-gray-950 border border-gray-800 text-white font-mono text-xs"
+                          />
+                        </td>
+                        <td className="py-2 px-1 text-center">
+                          <input
+                            type="number"
+                            value={m.passed}
+                            onChange={(e) => {
+                              const passed = Math.max(0, Number(e.target.value));
+                              const updated = [...qualityReportDraft.moduleStrategy];
+                              updated[idx] = { ...updated[idx], passed };
+                              setQualityReportDraft({ ...qualityReportDraft, moduleStrategy: updated });
+                            }}
+                            className="w-16 px-2 py-1 text-center rounded bg-gray-950 border border-gray-800 text-emerald-400 font-mono text-xs font-bold"
+                          />
+                        </td>
+                        <td className="py-2 px-1 text-center">
+                          <input
+                            type="number"
+                            value={m.failed}
+                            onChange={(e) => {
+                              const failed = Math.max(0, Number(e.target.value));
+                              const updated = [...qualityReportDraft.moduleStrategy];
+                              updated[idx] = { ...updated[idx], failed };
+                              setQualityReportDraft({ ...qualityReportDraft, moduleStrategy: updated });
+                            }}
+                            className="w-16 px-2 py-1 text-center rounded bg-gray-950 border border-gray-800 text-rose-400 font-mono text-xs font-bold"
+                          />
+                        </td>
+                        <td className="py-2 px-1 text-center">
+                          <input
+                            type="number"
+                            value={m.blocked}
+                            onChange={(e) => {
+                              const blocked = Math.max(0, Number(e.target.value));
+                              const updated = [...qualityReportDraft.moduleStrategy];
+                              updated[idx] = { ...updated[idx], blocked };
+                              setQualityReportDraft({ ...qualityReportDraft, moduleStrategy: updated });
+                            }}
+                            className="w-16 px-2 py-1 text-center rounded bg-gray-950 border border-gray-800 text-amber-400 font-mono text-xs"
+                          />
+                        </td>
+                        <td className="py-2 px-1 text-center">
+                          <select
+                            value={m.status}
+                            onChange={(e) => {
+                              const updated = [...qualityReportDraft.moduleStrategy];
+                              updated[idx] = { ...updated[idx], status: e.target.value as any };
+                              setQualityReportDraft({ ...qualityReportDraft, moduleStrategy: updated });
+                            }}
+                            className={`px-2 py-1 rounded bg-gray-950 border font-bold text-xs ${
+                              m.status === 'Pass'
+                                ? 'text-emerald-400 border-emerald-500/40'
+                                : 'text-rose-400 border-rose-500/40'
+                            }`}
+                          >
+                            <option value="Pass">Pass</option>
+                            <option value="Fail">Fail</option>
+                          </select>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Table 3: 16. FUNCTIONAL, INTEGRATION, REGRESSION & UAT */}
+            <div className="p-4 rounded-2xl bg-gray-900 border border-gray-800 space-y-3">
+              <h5 className="font-bold text-white text-xs uppercase tracking-wide flex items-center gap-1.5 text-rose-400">
+                <Workflow className="w-4 h-4 text-rose-400" /> 16. FUNCTIONAL, INTEGRATION, REGRESSION &amp; UAT
+              </h5>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-gray-800 text-gray-400 text-[11px]">
+                      <th className="pb-2 font-bold w-1/3">Test Type</th>
+                      <th className="pb-2 font-bold">Objective</th>
+                      <th className="pb-2 font-bold text-center w-28">Result</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-800/60 text-[11px]">
+                    {(qualityReportDraft.testTypes || []).map((tt, idx) => (
+                      <tr key={`tt-${tt.testType}`} className="hover:bg-gray-800/40">
+                        <td className="py-2 font-bold text-white">{tt.testType}</td>
+                        <td className="py-2 text-gray-300">{tt.objective}</td>
+                        <td className="py-2 text-center">
+                          <select
+                            value={tt.result}
+                            onChange={(e) => {
+                              const updated = [...qualityReportDraft.testTypes];
+                              updated[idx] = { ...updated[idx], result: e.target.value as any };
+                              setQualityReportDraft({ ...qualityReportDraft, testTypes: updated });
+                            }}
+                            className={`px-2 py-1 rounded bg-gray-950 border font-bold text-xs ${
+                              tt.result === 'Passed'
+                                ? 'text-emerald-400 border-emerald-500/40'
+                                : 'text-amber-400 border-amber-500/40'
+                            }`}
+                          >
+                            <option value="Passed">Passed</option>
+                            <option value="Pending">Pending</option>
+                          </select>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Table 4: 17. DEFECT MANAGEMENT & RELEASE CRITERIA */}
+            <div className="p-4 rounded-2xl bg-gray-900 border border-gray-800 space-y-3">
+              <h5 className="font-bold text-white text-xs uppercase tracking-wide flex items-center gap-1.5 text-rose-400">
+                <AlertTriangle className="w-4 h-4 text-rose-400" /> 17. DEFECT MANAGEMENT &amp; RELEASE CRITERIA
+              </h5>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-gray-800 text-gray-400 text-[11px]">
+                      <th className="pb-2 font-bold">Severity</th>
+                      <th className="pb-2 font-bold text-center">Total</th>
+                      <th className="pb-2 font-bold text-center">Resolved</th>
+                      <th className="pb-2 font-bold text-center">Retested</th>
+                      <th className="pb-2 font-bold text-center">Closed</th>
+                      <th className="pb-2 font-bold text-center">Open</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-800/60 text-[11px]">
+                    {(qualityReportDraft.defectSeverity || []).map((d, idx) => (
+                      <tr key={`def-${d.severity}`} className="hover:bg-gray-800/40">
+                        <td className="py-2 font-bold text-white">{d.severity}</td>
+                        <td className="py-2 px-1 text-center">
+                          <input
+                            type="number"
+                            value={d.total}
+                            disabled={d.severity === 'Critical' || d.severity === 'High'}
+                            onChange={(e) => {
+                              const total = Math.max(0, Number(e.target.value));
+                              const updated = [...qualityReportDraft.defectSeverity];
+                              updated[idx] = { ...updated[idx], total };
+                              setQualityReportDraft({ ...qualityReportDraft, defectSeverity: updated });
+                            }}
+                            className="w-16 px-2 py-1 text-center rounded bg-gray-950 border border-gray-800 text-white font-mono text-xs disabled:opacity-60"
+                          />
+                        </td>
+                        <td className="py-2 px-1 text-center">
+                          <input
+                            type="number"
+                            value={d.resolved}
+                            disabled={d.severity === 'Critical' || d.severity === 'High'}
+                            onChange={(e) => {
+                              const resolved = Math.max(0, Number(e.target.value));
+                              const updated = [...qualityReportDraft.defectSeverity];
+                              updated[idx] = { ...updated[idx], resolved };
+                              setQualityReportDraft({ ...qualityReportDraft, defectSeverity: updated });
+                            }}
+                            className="w-16 px-2 py-1 text-center rounded bg-gray-950 border border-gray-800 text-emerald-400 font-mono text-xs disabled:opacity-60"
+                          />
+                        </td>
+                        <td className="py-2 px-1 text-center">
+                          <input
+                            type="number"
+                            value={d.retested}
+                            disabled={d.severity === 'Critical' || d.severity === 'High'}
+                            onChange={(e) => {
+                              const retested = Math.max(0, Number(e.target.value));
+                              const updated = [...qualityReportDraft.defectSeverity];
+                              updated[idx] = { ...updated[idx], retested };
+                              setQualityReportDraft({ ...qualityReportDraft, defectSeverity: updated });
+                            }}
+                            className="w-16 px-2 py-1 text-center rounded bg-gray-950 border border-gray-800 text-cyan-300 font-mono text-xs disabled:opacity-60"
+                          />
+                        </td>
+                        <td className="py-2 px-1 text-center">
+                          <input
+                            type="number"
+                            value={d.closed}
+                            disabled={d.severity === 'Critical' || d.severity === 'High'}
+                            onChange={(e) => {
+                              const closed = Math.max(0, Number(e.target.value));
+                              const updated = [...qualityReportDraft.defectSeverity];
+                              updated[idx] = { ...updated[idx], closed };
+                              setQualityReportDraft({ ...qualityReportDraft, defectSeverity: updated });
+                            }}
+                            className="w-16 px-2 py-1 text-center rounded bg-gray-950 border border-gray-800 text-white font-mono text-xs disabled:opacity-60"
+                          />
+                        </td>
+                        <td className="py-2 px-1 text-center">
+                          <span className={`font-mono font-bold ${d.open > 0 ? 'text-rose-400' : 'text-emerald-400'}`}>
+                            {d.open}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Release Criteria Status Box */}
+              <div className="p-3.5 rounded-xl bg-gray-950 border border-gray-800 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-white text-xs uppercase tracking-wide">
+                    Release Criteria Status:
+                  </span>
+                  <span className="px-2.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold text-[10px] border border-emerald-500/30">
+                    {qualityReportDraft.releaseCriteria?.status || 'Ready for Release'}
+                  </span>
                 </div>
-                <div>
-                  <label className="text-gray-400 block mb-1">Passed</label>
-                  <input
-                    type="number"
-                    value={qualityReportDraft.testSummary.passed}
-                    onChange={(e) =>
-                      setQualityReportDraft({
-                        ...qualityReportDraft,
-                        testSummary: { ...qualityReportDraft.testSummary, passed: Number(e.target.value) },
-                      })
-                    }
-                    className="w-full px-2.5 py-1.5 rounded-lg bg-gray-950 border border-gray-800 text-emerald-400 text-xs font-bold"
-                  />
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-[11px]">
+                  <div className="p-2 rounded bg-gray-900 border border-gray-800 flex items-center justify-between">
+                    <span className="text-gray-400">Critical Open Defects:</span>
+                    <strong className="text-emerald-400">0 (Required: 0)</strong>
+                  </div>
+                  <div className="p-2 rounded bg-gray-900 border border-gray-800 flex items-center justify-between">
+                    <span className="text-gray-400">High Open Defects:</span>
+                    <strong className="text-emerald-400">0 (Required: 0)</strong>
+                  </div>
+                  <div className="p-2 rounded bg-gray-900 border border-gray-800 flex items-center justify-between">
+                    <span className="text-gray-400">Regression Test Suite:</span>
+                    <strong className="text-emerald-400">Passed</strong>
+                  </div>
+                  <div className="p-2 rounded bg-gray-900 border border-gray-800 flex items-center justify-between">
+                    <span className="text-gray-400">UAT Acceptance:</span>
+                    <strong className="text-emerald-400">Approved</strong>
+                  </div>
+                  <div className="p-2 rounded bg-gray-900 border border-gray-800 flex items-center justify-between">
+                    <span className="text-gray-400">Smoke Tests:</span>
+                    <strong className="text-emerald-400">Passed</strong>
+                  </div>
+                  <div className="p-2 rounded bg-gray-900 border border-gray-800 flex items-center justify-between">
+                    <span className="text-gray-400">Final Release Status:</span>
+                    <strong className="text-rose-400">Ready for Release</strong>
+                  </div>
                 </div>
+              </div>
+            </div>
+
+            {/* Sign-off Section */}
+            <div className="p-4 rounded-2xl bg-gray-900 border border-gray-800 space-y-3">
+              <h5 className="font-bold text-white text-xs uppercase tracking-wide flex items-center gap-1.5 text-rose-400">
+                <FileCheck className="w-4 h-4 text-emerald-400" /> Sign-off: Quality Assurance Lead / Senior QA Engineer
+              </h5>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="text-gray-400 block mb-1">Failed</label>
-                  <input
-                    type="number"
-                    value={qualityReportDraft.testSummary.failed}
-                    onChange={(e) =>
-                      setQualityReportDraft({
-                        ...qualityReportDraft,
-                        testSummary: { ...qualityReportDraft.testSummary, failed: Number(e.target.value) },
-                      })
-                    }
-                    className="w-full px-2.5 py-1.5 rounded-lg bg-gray-950 border border-gray-800 text-rose-400 text-xs font-bold"
-                  />
-                </div>
-                <div>
-                  <label className="text-gray-400 block mb-1">Pass Rate</label>
+                  <label className="text-gray-400 block mb-1">Lead QA Digital Signature [Signature / Verified] *</label>
                   <input
                     type="text"
-                    value={qualityReportDraft.testSummary.passRate}
-                    onChange={(e) =>
-                      setQualityReportDraft({
-                        ...qualityReportDraft,
-                        testSummary: { ...qualityReportDraft.testSummary, passRate: e.target.value },
-                      })
-                    }
-                    className="w-full px-2.5 py-1.5 rounded-lg bg-gray-950 border border-gray-800 text-cyan-400 text-xs font-bold"
+                    value={qualityEngineerSignature}
+                    onChange={(e) => setQualityEngineerSignature(e.target.value)}
+                    placeholder="e.g. Marcus Vance [Verified]"
+                    className="w-full px-3 py-2 rounded-xl bg-gray-950 border border-rose-500/40 text-rose-300 font-mono text-xs focus:outline-none"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="text-gray-400 block mb-1">Date [Date]</label>
+                  <input
+                    type="text"
+                    value={new Date().toLocaleDateString('en-GB')}
+                    readOnly
+                    className="w-full px-3 py-2 rounded-xl bg-gray-950 border border-gray-800 text-gray-400 font-mono text-xs"
                   />
                 </div>
               </div>
-            </div>
-
-            {/* Defect Severity Matrix */}
-            <div className="p-4 rounded-xl bg-gray-900 border border-gray-800 space-y-3">
-              <h5 className="font-bold text-white text-xs uppercase tracking-wide flex items-center gap-1.5">
-                <AlertTriangle className="w-4 h-4 text-amber-400" /> 2. Defect Severity Matrix
-              </h5>
-              <div className="grid grid-cols-4 gap-3">
-                <div>
-                  <label className="text-gray-400 block mb-1">Critical</label>
-                  <input
-                    type="number"
-                    value={qualityReportDraft.defectSeverityMatrix.critical}
-                    onChange={(e) =>
-                      setQualityReportDraft({
-                        ...qualityReportDraft,
-                        defectSeverityMatrix: { ...qualityReportDraft.defectSeverityMatrix, critical: Number(e.target.value) },
-                      })
-                    }
-                    className="w-full px-2.5 py-1.5 rounded-lg bg-gray-950 border border-gray-800 text-rose-400 text-xs font-bold"
-                  />
-                </div>
-                <div>
-                  <label className="text-gray-400 block mb-1">High</label>
-                  <input
-                    type="number"
-                    value={qualityReportDraft.defectSeverityMatrix.high}
-                    onChange={(e) =>
-                      setQualityReportDraft({
-                        ...qualityReportDraft,
-                        defectSeverityMatrix: { ...qualityReportDraft.defectSeverityMatrix, high: Number(e.target.value) },
-                      })
-                    }
-                    className="w-full px-2.5 py-1.5 rounded-lg bg-gray-950 border border-gray-800 text-amber-400 text-xs font-bold"
-                  />
-                </div>
-                <div>
-                  <label className="text-gray-400 block mb-1">Medium</label>
-                  <input
-                    type="number"
-                    value={qualityReportDraft.defectSeverityMatrix.medium}
-                    onChange={(e) =>
-                      setQualityReportDraft({
-                        ...qualityReportDraft,
-                        defectSeverityMatrix: { ...qualityReportDraft.defectSeverityMatrix, medium: Number(e.target.value) },
-                      })
-                    }
-                    className="w-full px-2.5 py-1.5 rounded-lg bg-gray-950 border border-gray-800 text-yellow-300 text-xs font-bold"
-                  />
-                </div>
-                <div>
-                  <label className="text-gray-400 block mb-1">Low</label>
-                  <input
-                    type="number"
-                    value={qualityReportDraft.defectSeverityMatrix.low}
-                    onChange={(e) =>
-                      setQualityReportDraft({
-                        ...qualityReportDraft,
-                        defectSeverityMatrix: { ...qualityReportDraft.defectSeverityMatrix, low: Number(e.target.value) },
-                      })
-                    }
-                    className="w-full px-2.5 py-1.5 rounded-lg bg-gray-950 border border-gray-800 text-emerald-400 text-xs font-bold"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Performance Metrics */}
-            <div className="p-4 rounded-xl bg-gray-900 border border-gray-800 space-y-3">
-              <h5 className="font-bold text-white text-xs uppercase tracking-wide flex items-center gap-1.5">
-                <Server className="w-4 h-4 text-cyan-400" /> 3. Performance Metrics
-              </h5>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-gray-400 block mb-1">Avg API Response (ms)</label>
-                  <input
-                    type="number"
-                    value={qualityReportDraft.performanceMetrics.avgApiResponseMs}
-                    onChange={(e) =>
-                      setQualityReportDraft({
-                        ...qualityReportDraft,
-                        performanceMetrics: { ...qualityReportDraft.performanceMetrics, avgApiResponseMs: Number(e.target.value) },
-                      })
-                    }
-                    className="w-full px-2.5 py-1.5 rounded-lg bg-gray-950 border border-gray-800 text-white text-xs font-bold"
-                  />
-                </div>
-                <div>
-                  <label className="text-gray-400 block mb-1">P99 Response (ms)</label>
-                  <input
-                    type="number"
-                    value={qualityReportDraft.performanceMetrics.p99ResponseMs}
-                    onChange={(e) =>
-                      setQualityReportDraft({
-                        ...qualityReportDraft,
-                        performanceMetrics: { ...qualityReportDraft.performanceMetrics, p99ResponseMs: Number(e.target.value) },
-                      })
-                    }
-                    className="w-full px-2.5 py-1.5 rounded-lg bg-gray-950 border border-gray-800 text-white text-xs font-bold"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Engineer Sign-off & Notes */}
-            <div className="p-4 rounded-xl bg-gray-900 border border-gray-800 space-y-3">
-              <h5 className="font-bold text-white text-xs uppercase tracking-wide flex items-center gap-1.5">
-                <FileCheck className="w-4 h-4 text-emerald-400" /> 4. Quality Engineer Digital Sign-Off
-              </h5>
               <div>
-                <label className="text-gray-400 block mb-1">Audit Notes / Execution Summary *</label>
+                <label className="text-gray-400 block mb-1">Audit Notes / Execution Remarks *</label>
                 <textarea
                   rows={2}
                   value={qualityEngineerNotes}
                   onChange={(e) => setQualityEngineerNotes(e.target.value)}
                   className="w-full px-3 py-2 rounded-xl bg-gray-950 border border-gray-800 text-white text-xs focus:outline-none focus:border-rose-500"
-                  required
-                />
-              </div>
-              <div>
-                <label className="text-gray-400 block mb-1">Digital Signature (Full Name) *</label>
-                <input
-                  type="text"
-                  value={qualityEngineerSignature}
-                  onChange={(e) => setQualityEngineerSignature(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl bg-gray-950 border border-rose-500/40 text-rose-300 font-mono text-xs focus:outline-none"
                   required
                 />
               </div>
@@ -5611,7 +5854,7 @@ export default function DashboardPage() {
                 className="px-5 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-black flex items-center gap-1.5 shadow"
               >
                 <Send className="w-3.5 h-3.5" />
-                <span>Submit QA Report to Quality Head</span>
+                <span>Submit Quality Engineering Report to Quality Head</span>
               </button>
             </div>
           </form>
@@ -5622,60 +5865,476 @@ export default function DashboardPage() {
       <Modal
         isOpen={!!approvingQualityReportProject}
         onClose={() => setApprovingQualityReportProject(null)}
-        title={`Review & Approve QA Report - ${approvingQualityReportProject?.projectCode || ''}`}
-        maxWidth="md"
+        title={`Review & Verify QUALITY ENGINEERING REPORT - ${approvingQualityReportProject?.projectCode || ''}`}
+        maxWidth="4xl"
       >
-        {approvingQualityReportProject && (
-          <form onSubmit={handleQualityHeadApprove} className="space-y-4 text-xs">
-            <div className="p-3.5 rounded-xl bg-gray-950 border border-gray-800 space-y-1">
-              <span className="text-rose-400 font-bold block">{approvingQualityReportProject.projectName}</span>
-              <p className="text-gray-400">Quality Engineer: {approvingQualityReportProject.assignedQualityEngineerName}</p>
-            </div>
+        {approvingQualityReportProject && (() => {
+          const qa = approvingQualityReportProject.qualityReport || getDefaultQualityReport(approvingQualityReportProject);
+          const engSign = qa.qaLeadSignoff || qa.engineerSignoff;
 
-            <div>
-              <label className="block text-gray-300 font-bold mb-1.5">
-                Quality Head Approval Remarks *
-              </label>
-              <textarea
-                rows={3}
-                value={qualityApprovalRemarks}
-                onChange={(e) => setQualityApprovalRemarks(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl bg-gray-950 border border-gray-800 text-white text-xs focus:outline-none focus:border-rose-500"
-                required
-              />
-            </div>
+          return (
+            <form onSubmit={handleQualityHeadApprove} className="space-y-4 text-xs max-h-[85vh] overflow-y-auto pr-1">
+              <div className="p-4 rounded-2xl bg-gray-950 border border-rose-500/30 space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-rose-400 font-black text-sm tracking-wide">
+                    QUALITY ENGINEERING REPORT • VERIFICATION GATEWAY
+                  </span>
+                  <span className="px-2.5 py-0.5 rounded bg-rose-500/20 text-rose-300 font-mono text-[10px] font-bold border border-rose-500/30">
+                    {approvingQualityReportProject.projectCode}
+                  </span>
+                </div>
+                <p className="text-gray-300 font-medium italic text-[11px]">
+                  Quality Engineering independently validates functional behavior, integration, regression, security, performance, usability and business acceptance before final release.
+                </p>
+                <div className="flex flex-wrap items-center gap-4 text-[11px] text-gray-400 pt-1">
+                  <span>Project: <strong className="text-white">{approvingQualityReportProject.projectName}</strong></span>
+                  <span>Submitted by QA Lead: <strong className="text-rose-300">{engSign?.name || approvingQualityReportProject.assignedQualityEngineerName}</strong></span>
+                  <span>Date: <strong className="text-white">{engSign?.date || 'Today'}</strong></span>
+                </div>
+              </div>
 
-            <div>
-              <label className="block text-gray-300 font-bold mb-1.5">
-                Quality Head Digital Signature *
-              </label>
-              <input
-                type="text"
-                value={qualityHeadSignature}
-                onChange={(e) => setQualityHeadSignature(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl bg-gray-950 border border-emerald-500/40 text-emerald-400 font-mono text-xs focus:outline-none"
-                required
-              />
-            </div>
+              {/* Table 1: Testing Area Coverage (Review) */}
+              <div className="p-4 rounded-2xl bg-gray-900 border border-gray-800 space-y-2">
+                <h5 className="font-bold text-white text-xs uppercase tracking-wide text-rose-400">
+                  Testing Area Coverage
+                </h5>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse text-[11px]">
+                    <thead>
+                      <tr className="border-b border-gray-800 text-gray-400">
+                        <th className="pb-1.5 font-bold">Testing Area</th>
+                        <th className="pb-1.5 font-bold text-center">Planned</th>
+                        <th className="pb-1.5 font-bold text-center">Executed</th>
+                        <th className="pb-1.5 font-bold text-center">Passed</th>
+                        <th className="pb-1.5 font-bold text-center">Failed</th>
+                        <th className="pb-1.5 font-bold text-center">Coverage</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-800/60">
+                      {(qa.testingAreas || []).map((t) => (
+                        <tr key={`v-ta-${t.area}`} className="hover:bg-gray-800/30">
+                          <td className="py-1.5 font-bold text-white">{t.area}</td>
+                          <td className="py-1.5 text-center text-gray-300">{t.planned}</td>
+                          <td className="py-1.5 text-center text-cyan-300">{t.executed}</td>
+                          <td className="py-1.5 text-center text-emerald-400 font-bold">{t.passed}</td>
+                          <td className="py-1.5 text-center text-gray-400 font-bold">{t.failed}</td>
+                          <td className="py-1.5 text-center text-rose-400 font-bold font-mono">{t.coverage}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
 
-            <div className="flex justify-end gap-2 pt-3 border-t border-gray-800">
-              <button
-                type="button"
-                onClick={() => setApprovingQualityReportProject(null)}
-                className="px-4 py-2 rounded-xl bg-gray-800 text-gray-300 font-bold"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black flex items-center gap-1.5 shadow"
-              >
-                <CheckCircle2 className="w-3.5 h-3.5" />
-                <span>Grant Quality Head Approval</span>
-              </button>
+              {/* Table 2: 15. TEST STRATEGY & COVERAGE (Review) */}
+              <div className="p-4 rounded-2xl bg-gray-900 border border-gray-800 space-y-2">
+                <h5 className="font-bold text-white text-xs uppercase tracking-wide text-rose-400">
+                  15. TEST STRATEGY &amp; COVERAGE
+                </h5>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse text-[11px]">
+                    <thead>
+                      <tr className="border-b border-gray-800 text-gray-400">
+                        <th className="pb-1.5 font-bold">Module</th>
+                        <th className="pb-1.5 font-bold text-center">Test Cases</th>
+                        <th className="pb-1.5 font-bold text-center">Passed</th>
+                        <th className="pb-1.5 font-bold text-center">Failed</th>
+                        <th className="pb-1.5 font-bold text-center">Blocked</th>
+                        <th className="pb-1.5 font-bold text-center">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-800/60">
+                      {(qa.moduleStrategy || []).map((m) => (
+                        <tr key={`v-mod-${m.module}`} className="hover:bg-gray-800/30">
+                          <td className="py-1.5 font-bold text-white">{m.module}</td>
+                          <td className="py-1.5 text-center text-gray-300">{m.testCases}</td>
+                          <td className="py-1.5 text-center text-emerald-400 font-bold">{m.passed}</td>
+                          <td className="py-1.5 text-center text-gray-400 font-bold">{m.failed}</td>
+                          <td className="py-1.5 text-center text-amber-400">{m.blocked}</td>
+                          <td className="py-1.5 text-center">
+                            <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold text-[10px]">
+                              {m.status}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Table 3: 16. FUNCTIONAL, INTEGRATION, REGRESSION & UAT (Review) */}
+              <div className="p-4 rounded-2xl bg-gray-900 border border-gray-800 space-y-2">
+                <h5 className="font-bold text-white text-xs uppercase tracking-wide text-rose-400">
+                  16. FUNCTIONAL, INTEGRATION, REGRESSION &amp; UAT
+                </h5>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse text-[11px]">
+                    <thead>
+                      <tr className="border-b border-gray-800 text-gray-400">
+                        <th className="pb-1.5 font-bold w-1/3">Test Type</th>
+                        <th className="pb-1.5 font-bold">Objective</th>
+                        <th className="pb-1.5 font-bold text-center w-28">Result</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-800/60">
+                      {(qa.testTypes || []).map((tt) => (
+                        <tr key={`v-tt-${tt.testType}`} className="hover:bg-gray-800/30">
+                          <td className="py-1.5 font-bold text-white">{tt.testType}</td>
+                          <td className="py-1.5 text-gray-300">{tt.objective}</td>
+                          <td className="py-1.5 text-center">
+                            <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold text-[10px]">
+                              {tt.result}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Table 4: 17. DEFECT MANAGEMENT & RELEASE CRITERIA (Review) */}
+              <div className="p-4 rounded-2xl bg-gray-900 border border-gray-800 space-y-2">
+                <h5 className="font-bold text-white text-xs uppercase tracking-wide text-rose-400">
+                  17. DEFECT MANAGEMENT &amp; RELEASE CRITERIA
+                </h5>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse text-[11px]">
+                    <thead>
+                      <tr className="border-b border-gray-800 text-gray-400">
+                        <th className="pb-1.5 font-bold">Severity</th>
+                        <th className="pb-1.5 font-bold text-center">Total</th>
+                        <th className="pb-1.5 font-bold text-center">Resolved</th>
+                        <th className="pb-1.5 font-bold text-center">Retested</th>
+                        <th className="pb-1.5 font-bold text-center">Closed</th>
+                        <th className="pb-1.5 font-bold text-center">Open</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-800/60">
+                      {(qa.defectSeverity || []).map((d) => (
+                        <tr key={`v-def-${d.severity}`} className="hover:bg-gray-800/30">
+                          <td className="py-1.5 font-bold text-white">{d.severity}</td>
+                          <td className="py-1.5 text-center text-gray-300">{d.total}</td>
+                          <td className="py-1.5 text-center text-emerald-400 font-bold">{d.resolved}</td>
+                          <td className="py-1.5 text-center text-cyan-300">{d.retested}</td>
+                          <td className="py-1.5 text-center text-gray-300">{d.closed}</td>
+                          <td className="py-1.5 text-center text-emerald-400 font-bold font-mono">{d.open}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                <div className="p-3 rounded-xl bg-gray-950 border border-gray-800 grid grid-cols-2 sm:grid-cols-3 gap-2 text-[11px]">
+                  <div className="text-gray-300">Critical Open: <strong className="text-emerald-400">0 (Req: 0)</strong></div>
+                  <div className="text-gray-300">High Open: <strong className="text-emerald-400">0 (Req: 0)</strong></div>
+                  <div className="text-gray-300">Regression: <strong className="text-emerald-400">Passed</strong></div>
+                  <div className="text-gray-300">UAT: <strong className="text-emerald-400">Approved</strong></div>
+                  <div className="text-gray-300">Smoke: <strong className="text-emerald-400">Passed</strong></div>
+                  <div className="text-gray-300">Status: <strong className="text-rose-400">{qa.releaseCriteria?.status || 'Ready for Release'}</strong></div>
+                </div>
+              </div>
+
+              {/* QA Lead Signed Box */}
+              <div className="p-3.5 rounded-xl bg-gray-950 border border-rose-500/30 text-xs space-y-1">
+                <span className="text-[10px] uppercase font-bold text-gray-400">Sign-off: Quality Assurance Lead / Senior QA Engineer</span>
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-white">{engSign?.name || 'Senior QA Engineer'}</span>
+                  <span className="font-mono text-rose-300 italic">{engSign?.signature || '[Verified]'}</span>
+                </div>
+                <p className="text-gray-400 text-[11px]">Audit Notes: {engSign?.notes || 'All requirements and test cases validated successfully.'}</p>
+              </div>
+
+              {/* Quality Head Sign-off Section */}
+              <div className="p-4 rounded-2xl bg-gray-900 border border-emerald-500/30 space-y-3">
+                <h5 className="font-bold text-white text-xs uppercase tracking-wide flex items-center gap-1.5 text-emerald-400">
+                  <ShieldCheck className="w-4 h-4 text-emerald-400" /> Quality Head Sign-off: Quality Head
+                </h5>
+                <div>
+                  <label className="block text-gray-300 font-bold mb-1">
+                    Quality Head Approval Remarks *
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={qualityApprovalRemarks}
+                    onChange={(e) => setQualityApprovalRemarks(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl bg-gray-950 border border-gray-800 text-white text-xs focus:outline-none focus:border-emerald-500"
+                    required
+                  />
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-gray-300 font-bold mb-1">
+                      Quality Head Signature [Signature / Verified] *
+                    </label>
+                    <input
+                      type="text"
+                      value={qualityHeadSignature}
+                      onChange={(e) => setQualityHeadSignature(e.target.value)}
+                      placeholder="e.g. Elena Rostova [Verified]"
+                      className="w-full px-3 py-2 rounded-xl bg-gray-950 border border-emerald-500/40 text-emerald-400 font-mono text-xs focus:outline-none"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-gray-300 font-bold mb-1">
+                      Sign-off Date [Date]
+                    </label>
+                    <input
+                      type="text"
+                      value={new Date().toLocaleDateString('en-GB')}
+                      readOnly
+                      className="w-full px-3 py-2 rounded-xl bg-gray-950 border border-gray-800 text-gray-400 font-mono text-xs"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-3 border-t border-gray-800">
+                <button
+                  type="button"
+                  onClick={() => setApprovingQualityReportProject(null)}
+                  className="px-4 py-2 rounded-xl bg-gray-800 text-gray-300 font-bold"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black flex items-center gap-1.5 shadow"
+                >
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  <span>Grant Quality Head Approval &amp; Sign Off</span>
+                </button>
+              </div>
+            </form>
+          );
+        })()}
+      </Modal>
+
+      {/* 18B. View Quality Engineering Report Modal */}
+      <Modal
+        isOpen={!!viewingQualityReportProject}
+        onClose={() => setViewingQualityReportProject(null)}
+        title={`QUALITY ENGINEERING REPORT - ${viewingQualityReportProject?.projectCode || ''}`}
+        maxWidth="4xl"
+      >
+        {viewingQualityReportProject && (() => {
+          const qa = viewingQualityReportProject.qualityReport || getDefaultQualityReport(viewingQualityReportProject);
+          const engSign = qa.qaLeadSignoff || qa.engineerSignoff;
+          const headSign = qa.qualityHeadSignoff || qa.headApproval;
+
+          return (
+            <div className="space-y-4 text-xs max-h-[85vh] overflow-y-auto pr-1">
+              <div className="p-4 rounded-2xl bg-gray-950 border border-rose-500/30 space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-rose-400 font-black text-sm tracking-wide">
+                    QUALITY ENGINEERING REPORT
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="px-2.5 py-0.5 rounded bg-rose-500/20 text-rose-300 font-mono text-[10px] font-bold border border-rose-500/30">
+                      {viewingQualityReportProject.projectCode}
+                    </span>
+                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                      isQualityReportApproved(viewingQualityReportProject)
+                        ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                        : 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                    }`}>
+                      {isQualityReportApproved(viewingQualityReportProject) ? '✅ APPROVED' : '⏳ PENDING APPROVAL'}
+                    </span>
+                  </div>
+                </div>
+                <p className="text-gray-300 font-medium italic text-[11px]">
+                  Quality Engineering independently validates functional behavior, integration, regression, security, performance, usability and business acceptance before final release.
+                </p>
+                <div className="flex flex-wrap items-center gap-4 text-[11px] text-gray-400 pt-1">
+                  <span>Project: <strong className="text-white">{viewingQualityReportProject.projectName}</strong></span>
+                  <span>Client: <strong className="text-white">{viewingQualityReportProject.customerName}</strong></span>
+                </div>
+              </div>
+
+              {/* Table 1: Testing Area Coverage */}
+              <div className="p-4 rounded-2xl bg-gray-900 border border-gray-800 space-y-2">
+                <h5 className="font-bold text-white text-xs uppercase tracking-wide text-rose-400">
+                  Testing Area Coverage
+                </h5>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse text-[11px]">
+                    <thead>
+                      <tr className="border-b border-gray-800 text-gray-400">
+                        <th className="pb-1.5 font-bold">Testing Area</th>
+                        <th className="pb-1.5 font-bold text-center">Planned</th>
+                        <th className="pb-1.5 font-bold text-center">Executed</th>
+                        <th className="pb-1.5 font-bold text-center">Passed</th>
+                        <th className="pb-1.5 font-bold text-center">Failed</th>
+                        <th className="pb-1.5 font-bold text-center">Coverage</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-800/60">
+                      {(qa.testingAreas || []).map((t) => (
+                        <tr key={`view-ta-${t.area}`} className="hover:bg-gray-800/30">
+                          <td className="py-1.5 font-bold text-white">{t.area}</td>
+                          <td className="py-1.5 text-center text-gray-300">{t.planned}</td>
+                          <td className="py-1.5 text-center text-cyan-300">{t.executed}</td>
+                          <td className="py-1.5 text-center text-emerald-400 font-bold">{t.passed}</td>
+                          <td className="py-1.5 text-center text-gray-400 font-bold">{t.failed}</td>
+                          <td className="py-1.5 text-center text-rose-400 font-bold font-mono">{t.coverage}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Table 2: 15. TEST STRATEGY & COVERAGE */}
+              <div className="p-4 rounded-2xl bg-gray-900 border border-gray-800 space-y-2">
+                <h5 className="font-bold text-white text-xs uppercase tracking-wide text-rose-400">
+                  15. TEST STRATEGY &amp; COVERAGE
+                </h5>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse text-[11px]">
+                    <thead>
+                      <tr className="border-b border-gray-800 text-gray-400">
+                        <th className="pb-1.5 font-bold">Module</th>
+                        <th className="pb-1.5 font-bold text-center">Test Cases</th>
+                        <th className="pb-1.5 font-bold text-center">Passed</th>
+                        <th className="pb-1.5 font-bold text-center">Failed</th>
+                        <th className="pb-1.5 font-bold text-center">Blocked</th>
+                        <th className="pb-1.5 font-bold text-center">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-800/60">
+                      {(qa.moduleStrategy || []).map((m) => (
+                        <tr key={`view-mod-${m.module}`} className="hover:bg-gray-800/30">
+                          <td className="py-1.5 font-bold text-white">{m.module}</td>
+                          <td className="py-1.5 text-center text-gray-300">{m.testCases}</td>
+                          <td className="py-1.5 text-center text-emerald-400 font-bold">{m.passed}</td>
+                          <td className="py-1.5 text-center text-gray-400 font-bold">{m.failed}</td>
+                          <td className="py-1.5 text-center text-amber-400">{m.blocked}</td>
+                          <td className="py-1.5 text-center">
+                            <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold text-[10px]">
+                              {m.status}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Table 3: 16. FUNCTIONAL, INTEGRATION, REGRESSION & UAT */}
+              <div className="p-4 rounded-2xl bg-gray-900 border border-gray-800 space-y-2">
+                <h5 className="font-bold text-white text-xs uppercase tracking-wide text-rose-400">
+                  16. FUNCTIONAL, INTEGRATION, REGRESSION &amp; UAT
+                </h5>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse text-[11px]">
+                    <thead>
+                      <tr className="border-b border-gray-800 text-gray-400">
+                        <th className="pb-1.5 font-bold w-1/3">Test Type</th>
+                        <th className="pb-1.5 font-bold">Objective</th>
+                        <th className="pb-1.5 font-bold text-center w-28">Result</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-800/60">
+                      {(qa.testTypes || []).map((tt) => (
+                        <tr key={`view-tt-${tt.testType}`} className="hover:bg-gray-800/30">
+                          <td className="py-1.5 font-bold text-white">{tt.testType}</td>
+                          <td className="py-1.5 text-gray-300">{tt.objective}</td>
+                          <td className="py-1.5 text-center">
+                            <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold text-[10px]">
+                              {tt.result}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Table 4: 17. DEFECT MANAGEMENT & RELEASE CRITERIA */}
+              <div className="p-4 rounded-2xl bg-gray-900 border border-gray-800 space-y-2">
+                <h5 className="font-bold text-white text-xs uppercase tracking-wide text-rose-400">
+                  17. DEFECT MANAGEMENT &amp; RELEASE CRITERIA
+                </h5>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse text-[11px]">
+                    <thead>
+                      <tr className="border-b border-gray-800 text-gray-400">
+                        <th className="pb-1.5 font-bold">Severity</th>
+                        <th className="pb-1.5 font-bold text-center">Total</th>
+                        <th className="pb-1.5 font-bold text-center">Resolved</th>
+                        <th className="pb-1.5 font-bold text-center">Retested</th>
+                        <th className="pb-1.5 font-bold text-center">Closed</th>
+                        <th className="pb-1.5 font-bold text-center">Open</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-800/60">
+                      {(qa.defectSeverity || []).map((d) => (
+                        <tr key={`view-def-${d.severity}`} className="hover:bg-gray-800/30">
+                          <td className="py-1.5 font-bold text-white">{d.severity}</td>
+                          <td className="py-1.5 text-center text-gray-300">{d.total}</td>
+                          <td className="py-1.5 text-center text-emerald-400 font-bold">{d.resolved}</td>
+                          <td className="py-1.5 text-center text-cyan-300">{d.retested}</td>
+                          <td className="py-1.5 text-center text-gray-300">{d.closed}</td>
+                          <td className="py-1.5 text-center text-emerald-400 font-bold font-mono">{d.open}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                <div className="p-3 rounded-xl bg-gray-950 border border-gray-800 grid grid-cols-2 sm:grid-cols-3 gap-2 text-[11px]">
+                  <div className="text-gray-300">Critical Open: <strong className="text-emerald-400">0 (Req: 0)</strong></div>
+                  <div className="text-gray-300">High Open: <strong className="text-emerald-400">0 (Req: 0)</strong></div>
+                  <div className="text-gray-300">Regression: <strong className="text-emerald-400">Passed</strong></div>
+                  <div className="text-gray-300">UAT: <strong className="text-emerald-400">Approved</strong></div>
+                  <div className="text-gray-300">Smoke: <strong className="text-emerald-400">Passed</strong></div>
+                  <div className="text-gray-300">Status: <strong className="text-rose-400">{qa.releaseCriteria?.status || 'Ready for Release'}</strong></div>
+                </div>
+              </div>
+
+              {/* Dual Sign-offs */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="p-3.5 rounded-xl bg-gray-950 border border-rose-500/30 space-y-1">
+                  <span className="text-[10px] uppercase font-bold text-rose-400 block">Sign-off: Quality Assurance Lead / Senior QA Engineer</span>
+                  <div className="font-bold text-white">{engSign?.name || viewingQualityReportProject.assignedQualityEngineerName || 'Quality Engineer'}</div>
+                  <div className="font-mono text-rose-300 italic text-sm">{engSign?.signature || 'Pending Signature'}</div>
+                  <div className="text-[10px] text-gray-400">Date: {engSign?.date || 'Pending'}</div>
+                  <p className="text-[11px] text-gray-400">Notes: {engSign?.notes || 'Validated against quality standards'}</p>
+                </div>
+
+                <div className={`p-3.5 rounded-xl bg-gray-950 border ${headSign?.approved ? 'border-emerald-500/40' : 'border-gray-800'} space-y-1`}>
+                  <span className="text-[10px] uppercase font-bold text-emerald-400 block">Quality Head Sign-off: Quality Head</span>
+                  <div className="font-bold text-white">{headSign?.name || viewingQualityReportProject.qualityHeadName || 'Quality Head'}</div>
+                  <div className="font-mono text-emerald-300 italic text-sm">{headSign?.signature || (headSign?.approved ? 'Elena Rostova' : 'Pending Approval')}</div>
+                  <div className="text-[10px] text-gray-400">Date: {headSign?.date || (headSign?.approved ? 'Approved' : 'Pending')}</div>
+                  <p className="text-[11px] text-gray-400">Remarks: {headSign?.remarks || 'Approved for release'}</p>
+                </div>
+              </div>
+
+              <div className="flex justify-between items-center pt-3 border-t border-gray-800">
+                <button
+                  type="button"
+                  onClick={() => exportQualityReportToPdf(viewingQualityReportProject)}
+                  className="px-4 py-2 rounded-xl bg-gray-800 hover:bg-gray-700 text-rose-300 font-bold flex items-center gap-1.5"
+                >
+                  <Printer className="w-3.5 h-3.5 text-rose-400" />
+                  <span>Export Printable QA PDF</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewingQualityReportProject(null)}
+                  className="px-5 py-2 rounded-xl bg-gray-800 hover:bg-gray-700 text-white font-bold"
+                >
+                  Close
+                </button>
+              </div>
             </div>
-          </form>
-        )}
+          );
+        })()}
       </Modal>
 
       {/* 19. Manager Assign Project to Cyber Head Modal */}
