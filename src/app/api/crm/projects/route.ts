@@ -9,7 +9,7 @@ export async function GET(req: Request) {
 
   // 1. Try Express backend
   try {
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://pjsofonic-erp-backend.onrender.com/api';
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://erp-backend-np4k.onrender.com/api';
     const headers: Record<string, string> = {};
     if (authHeader) headers['Authorization'] = authHeader;
 

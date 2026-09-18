@@ -2,7 +2,7 @@ import { fetchSupabaseProjects, saveProjectToSupabase } from './supabase';
 import { safeString } from './safeString';
 
 export const CRM_API_BASE = process.env.NEXT_PUBLIC_CRM_API_BASE || 'https://pjsofonic-crm-backend-roft.onrender.com';
-export const ERP_BACKEND_API_BASE = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://pjsofonic-erp-backend.onrender.com/api';
+export const ERP_BACKEND_API_BASE = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://erp-backend-np4k.onrender.com/api';
 
 export interface ProductionDeliverables {
   implementationPlan?: string;
@@ -795,7 +795,7 @@ export async function fetchProjectHandoverDocument(projectCode: string): Promise
   }
 
   try {
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://pjsofonic-erp-backend.onrender.com/api';
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://erp-backend-np4k.onrender.com/api';
     const res = await fetch(`${backendUrl}/projects/${encodeURIComponent(projectCode)}/handover-document`);
     if (res.ok) {
       return await res.json();
@@ -869,7 +869,7 @@ function syncProjectUpdate(updatedList: CrmCustomerProject[], updatedItem?: CrmC
 
     if (updatedItem) {
       // Background sync to Express backend
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://pjsofonic-erp-backend.onrender.com/api';
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://erp-backend-np4k.onrender.com/api';
       fetch(`${backendUrl}/crm/projects`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -1012,7 +1012,7 @@ export function assignProjectToManager(
 
   syncProjectUpdate(updated, modifiedItem);
 
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://pjsofonic-erp-backend.onrender.com/api';
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://erp-backend-np4k.onrender.com/api';
   fetch(`${backendUrl}/projects/${encodeURIComponent(projectId)}/assign-manager`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -1049,7 +1049,7 @@ export function assignProjectToProductionHead(
 
   syncProjectUpdate(updated, modifiedItem);
 
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://pjsofonic-erp-backend.onrender.com/api';
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://erp-backend-np4k.onrender.com/api';
   fetch(`${backendUrl}/projects/${encodeURIComponent(projectId)}/assign-head`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -1086,7 +1086,7 @@ export function assignProjectToTeamLead(
 
   syncProjectUpdate(updated, modifiedItem);
 
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://pjsofonic-erp-backend.onrender.com/api';
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://erp-backend-np4k.onrender.com/api';
   fetch(`${backendUrl}/projects/${encodeURIComponent(projectId)}/assign-tl`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -1130,7 +1130,7 @@ export function assignProjectEngineers(
 
   syncProjectUpdate(updated, modifiedItem);
 
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://pjsofonic-erp-backend.onrender.com/api';
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://erp-backend-np4k.onrender.com/api';
   fetch(`${backendUrl}/projects/${encodeURIComponent(projectId)}/assign-engineers`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -1183,7 +1183,7 @@ export async function approveAdminFinalAndSyncCrm(
 
   // Call Express Backend API to sync with CRM
   try {
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://pjsofonic-erp-backend.onrender.com/api';
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://erp-backend-np4k.onrender.com/api';
     const res = await fetch(`${backendUrl}/projects/${encodeURIComponent(projectId)}/admin-approve-and-crm-sync`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -1824,7 +1824,7 @@ export function submitProductionReportByFullStack(
 
   syncProjectUpdate(updated, modifiedItem);
 
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://pjsofonic-erp-backend.onrender.com/api';
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://erp-backend-np4k.onrender.com/api';
   fetch(`${backendUrl}/projects/${encodeURIComponent(projectId)}/production-report/submit-fullstack`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -1885,7 +1885,7 @@ export function reviewProductionReportByTeamLead(
 
   syncProjectUpdate(updated, modifiedItem);
 
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://pjsofonic-erp-backend.onrender.com/api';
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://erp-backend-np4k.onrender.com/api';
   fetch(`${backendUrl}/projects/${encodeURIComponent(projectId)}/production-report/review-tl`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -1940,7 +1940,7 @@ export function approveProductionReportByHead(
 
   syncProjectUpdate(updated, modifiedItem);
 
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://pjsofonic-erp-backend.onrender.com/api';
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://erp-backend-np4k.onrender.com/api';
   fetch(`${backendUrl}/projects/${encodeURIComponent(projectId)}/production-report/approve-head`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -2006,7 +2006,7 @@ export function acceptProductionReportByManager(
 
   syncProjectUpdate(updated, modifiedItem);
 
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://pjsofonic-erp-backend.onrender.com/api';
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://erp-backend-np4k.onrender.com/api';
   fetch(`${backendUrl}/projects/${encodeURIComponent(projectId)}/production-report/accept-manager`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -2259,7 +2259,7 @@ export async function fetchCrmCustomerProjects(): Promise<CrmCustomerProject[]> 
 
   // 2. Fetch live projects from Express Backend API
   try {
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://pjsofonic-erp-backend.onrender.com/api';
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://erp-backend-np4k.onrender.com/api';
     let token = '';
     if (typeof window !== 'undefined') {
       token = localStorage.getItem('pj_ems_token') || localStorage.getItem('pj_crm_token') || '';
@@ -2561,7 +2561,7 @@ export function assignProjectToQualityHead(
 
   syncProjectUpdate(updated, modifiedItem);
 
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://pjsofonic-erp-backend.onrender.com/api';
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://erp-backend-np4k.onrender.com/api';
   fetch(`${backendUrl}/projects/${encodeURIComponent(projectId)}/assign-quality-head`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -2595,7 +2595,7 @@ export function assignProjectToQualityEngineer(
 
   syncProjectUpdate(updated, modifiedItem);
 
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://pjsofonic-erp-backend.onrender.com/api';
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://erp-backend-np4k.onrender.com/api';
   fetch(`${backendUrl}/projects/${encodeURIComponent(projectId)}/assign-quality-engineer`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -2669,7 +2669,7 @@ export function submitQualityEngineerReport(
 
   syncProjectUpdate(updated, modifiedItem);
 
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://pjsofonic-erp-backend.onrender.com/api';
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://erp-backend-np4k.onrender.com/api';
   fetch(`${backendUrl}/projects/${encodeURIComponent(projectId)}/submit-quality-report`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -2729,7 +2729,7 @@ export function approveQualityHeadReport(
 
   syncProjectUpdate(updated, modifiedItem);
 
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://pjsofonic-erp-backend.onrender.com/api';
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://erp-backend-np4k.onrender.com/api';
   fetch(`${backendUrl}/projects/${encodeURIComponent(projectId)}/approve-quality-report`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -2812,7 +2812,7 @@ export function assignProjectToCyberHead(
 
   syncProjectUpdate(updated, modifiedItem);
 
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://pjsofonic-erp-backend.onrender.com/api';
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://erp-backend-np4k.onrender.com/api';
   fetch(`${backendUrl}/projects/${encodeURIComponent(projectId)}/assign-cyber-head`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -2846,7 +2846,7 @@ export function assignProjectToBugBounty(
 
   syncProjectUpdate(updated, modifiedItem);
 
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://pjsofonic-erp-backend.onrender.com/api';
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://erp-backend-np4k.onrender.com/api';
   fetch(`${backendUrl}/projects/${encodeURIComponent(projectId)}/assign-bug-bounty`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -2896,7 +2896,7 @@ export function submitBugBountyReport(
 
   syncProjectUpdate(updated, modifiedItem);
 
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://pjsofonic-erp-backend.onrender.com/api';
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://erp-backend-np4k.onrender.com/api';
   fetch(`${backendUrl}/projects/${encodeURIComponent(projectId)}/submit-cyber-report`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -2947,7 +2947,7 @@ export function approveCyberHeadReport(
 
   syncProjectUpdate(updated, modifiedItem);
 
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://pjsofonic-erp-backend.onrender.com/api';
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://erp-backend-np4k.onrender.com/api';
   fetch(`${backendUrl}/projects/${encodeURIComponent(projectId)}/approve-cyber-report`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -2995,7 +2995,7 @@ export function managerSubmitConsolidatedToAdmin(
 
   syncProjectUpdate(updated, modifiedItem);
 
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://pjsofonic-erp-backend.onrender.com/api';
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://erp-backend-np4k.onrender.com/api';
   fetch(`${backendUrl}/projects/${encodeURIComponent(projectId)}/manager-submit-to-admin`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -3058,7 +3058,7 @@ export async function adminFinalApproveAllReportsAndSyncCrm(
   syncProjectUpdate(updated, modifiedItem);
 
   try {
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://pjsofonic-erp-backend.onrender.com/api';
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://erp-backend-np4k.onrender.com/api';
     const res = await fetch(`${backendUrl}/projects/${encodeURIComponent(projectId)}/admin-approve-and-crm-sync`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

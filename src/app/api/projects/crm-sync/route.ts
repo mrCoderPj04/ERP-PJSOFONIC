@@ -31,7 +31,7 @@ export async function POST(req: Request) {
 
     // Forward to Express Backend
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://pjsofonic-erp-backend.onrender.com/api';
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://erp-backend-np4k.onrender.com/api';
       await fetch(`${backendUrl}/projects/crm-sync`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

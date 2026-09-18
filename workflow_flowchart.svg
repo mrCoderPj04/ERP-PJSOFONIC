@@ -359,6 +359,6 @@
   <!-- Footer Banner -->
   <g transform="translate(80, 2200)">
     <rect x="0" y="0" width="1440" height="70" rx="12" fill="#111827" stroke="#1F2937" />
-    <text x="40" y="42" fill="#9CA3AF" font-size="14" font-weight="500">&copy; 2026 PJSOFONIC ERP Ecosystem &bull; Frontend: https://erp-pjsofonic.onrender.com &bull; Backend: https://pjsofonic-erp-backend.onrender.com &bull; QMS: https://pjsofonic-qms.onrender.com</text>
+    <text x="40" y="42" fill="#9CA3AF" font-size="14" font-weight="500">&copy; 2026 PJSOFONIC ERP Ecosystem &bull; Frontend: https://erp-pjsofonic.onrender.com &bull; Backend: https://erp-backend-np4k.onrender.com &bull; QMS: https://pjsofonic-qms.onrender.com</text>
   </g>
 </svg>

@@ -100,7 +100,7 @@ export function sendChatMessage(
 
   // Sync to Express Backend
   if (typeof window !== 'undefined') {
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://pjsofonic-erp-backend.onrender.com/api';
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://erp-backend-np4k.onrender.com/api';
     fetch(`${backendUrl}/chat/messages`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -134,7 +134,7 @@ export function subscribeToChatUpdates(callback: () => void): () => void {
 // Async sync from backend
 export async function syncChatMessagesFromBackend(): Promise<ChatMessage[]> {
   try {
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://pjsofonic-erp-backend.onrender.com/api';
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://erp-backend-np4k.onrender.com/api';
     const res = await fetch(`${backendUrl}/chat/messages`).catch(() => null);
     if (res && res.ok) {
       const data = await res.json();

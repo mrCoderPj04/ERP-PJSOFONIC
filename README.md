@@ -19,7 +19,7 @@ Enterprise Resource Planning (ERP) platform frontend for **PJSOFONIC Enterprise 
 | Service | Role | Live URL / Endpoint |
 |---|---|---|
 | **ERP Frontend** | Main Web Application UI | [https://erp-pjsofonic.onrender.com/login](https://erp-pjsofonic.onrender.com/login) |
-| **ERP Backend API** | Express REST API & Database Gateway | [https://pjsofonic-erp-backend.onrender.com/api](https://pjsofonic-erp-backend.onrender.com/api) |
+| **ERP Backend API** | Express REST API & Database Gateway | [https://erp-backend-np4k.onrender.com/api](https://erp-backend-np4k.onrender.com/api) |
 | **EMS Directory & Auth** | Real-Time Staff Directory & Login | `https://ems-backend-z3bv.onrender.com/api` |
 | **CRM Backend** | Customer Projects Ingestion | `https://pjsofonic-crm-backend-roft.onrender.com` |
 | **QMS Quality Suite** | Live Quality Management & Testing Engine | [https://pjsofonic-qms.onrender.com/](https://pjsofonic-qms.onrender.com/) |
@@ -208,7 +208,7 @@ Live notification engine synchronized across all profiles with dynamic employee 
 ## 🛠️ Environment Variables (`.env.local`)
 
 ```env
-NEXT_PUBLIC_BACKEND_URL="https://pjsofonic-erp-backend.onrender.com/api"
+NEXT_PUBLIC_BACKEND_URL="https://erp-backend-np4k.onrender.com/api"
 NEXT_PUBLIC_CRM_API_BASE="https://pjsofonic-crm-backend-roft.onrender.com"
 NEXT_PUBLIC_EMS_API_BASE="https://ems-backend-z3bv.onrender.com/api"
 NEXT_PUBLIC_EMS_BACKEND_URL="https://ems-backend-z3bv.onrender.com/api"

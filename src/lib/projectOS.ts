@@ -1,7 +1,7 @@
 import { fetchCrmCustomerProjects } from './crm';
 
 export const PROJECTOS_API_BASE = process.env.NEXT_PUBLIC_PROJECTOS_API_BASE || 'https://sofo-projectos.onrender.com';
-export const ERP_BACKEND_API_BASE = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://pjsofonic-erp-backend.onrender.com/api';
+export const ERP_BACKEND_API_BASE = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://erp-backend-np4k.onrender.com/api';
 
 export interface ProjectOsPayload {
   id?: string;
@@ -34,7 +34,7 @@ export function getStoredProjectOsData(): ProjectOsPayload[] {
  * Syncs active/updated project data with ProjectOS backend & ERP Backend
  * Endpoints:
  * - https://sofo-projectos.onrender.com/api/projects
- * - https://pjsofonic-erp-backend.onrender.com/api/projectos/sync
+ * - https://erp-backend-np4k.onrender.com/api/projectos/sync
  */
 export async function syncWithProjectOS(project: ProjectOsPayload): Promise<boolean> {
   const existing = getStoredProjectOsData();
