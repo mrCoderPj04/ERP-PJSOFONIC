@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { fetchSupabaseProjects } from '../../../../lib/supabase';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: Request) {
   const map = new Map<string, any>();
   const authHeader = req.headers.get('authorization') || '';

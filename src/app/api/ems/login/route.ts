@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 
+export const dynamic = 'force-dynamic';
+
 const EMS_BACKEND_URL = process.env.EMS_BACKEND_URL || 'https://ems-backend-z3bv.onrender.com/api';
 const LOCAL_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://pjsofonic-erp-backend.onrender.com/api';
 
